@@ -1,0 +1,270 @@
+<html>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>HipTrip</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="../bootstrap/css/bootstrap.css" rel="stylesheet">
+        <style>
+          body {
+            padding-top: 40px; /* 60px to make the container go all the way to the bottom of the topbar */
+          }
+        </style>
+        <link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+		<style>
+			#heatmapArea {
+				position:relative;
+				float:left;
+				width:100%;
+				height:100%;
+				border:0px dashed black;
+			}
+			#configArea {
+				position:absolute;
+				top:60px;
+                right:30px;
+				width:300px;
+                background-color:#fff;
+				padding:15px;
+                opacity:.8;
+                background-image:url(../img/grid_noise.png);
+                border: 1px solid #999;
+			}
+            
+            .yelp{
+                width:100%;
+                height:100px;
+                background-color:#ccc;
+            
+            }
+		</style>
+<!--<link rel="shortcut icon" type="image/png" href="http://www.patrick-wied.at/img/favicon.png" />-->
+
+
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container" style="width:80%">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">HipTrip</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="active topBtn" id="losAngeles"><a href="#" >Los Angeles</a></li>
+              <li class="topBtn" id="sanFrancisco"><a href="#" >San Francisco</a></li>
+              <li class="topBtn" id="greece"><a href="#" >Greece</a></li>
+            </ul>
+            <ul class="nav pull-right">
+              <li ><a data-toggle="modal" href="#aboutModal">About</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- Page -->
+    <div class="container" style="width:100%">
+
+        <div id="heatmapArea">
+            
+        </div>
+        <div id="configArea">
+            <h2>Name of Business</h2>
+            <h4>Hipness</h4>
+            <div class="progress">
+              <div class="bar" style="width: 60%;"></div>
+            </div>
+            <h4>Review Rating</h4>
+            <div class="progress">
+              <div class="bar" style="width: 90%;"></div>
+            </div>
+            <br />
+            
+            <h4>Yelp Reviews</h4>
+            <div class="yelp">
+            </div>
+            <br />
+            
+            <h4>Nearby Attractions</h4>
+            <div class="yelp">
+            </div>
+            <br />
+            
+            <h4>Overlays</h4>
+            <div class="btn-group" data-toggle="buttons-checkbox">
+                <button id="tog" class="btn btn-primary active">Heatmap</button>
+                <button class="btn btn-primary">WikiTravel</button>
+                <button class="btn btn-primary">TripAdvisor</button>
+            </div>
+            
+        </div>
+
+        
+        <div class="modal hide fade" id = "aboutModal" style="display:none">
+          <div class="modal-header">
+            <a class="close" data-dismiss="modal">×</a>
+            <h3>About HipTrip</h3>
+          </div>
+          <div class="modal-body">
+            <p>When traveling, there are many existing services that provide reviews to help travelers decide where to dine, shop, or explore. However, distinguishing between places that tourists frequent and places that locals frequent is a challenge that continues to elude review services. In this paper, we present HipTrip, a system that utilizes geo-spatial data from various public sources to determine tourist “hotspots”, and finds highly rated points of interest away from these areas. This application utilizes Semantic Web technology, knowledge bases, and information extraction techniques to synthesize traveler behavior and points of interest in order to expose valuable travel suggestions.</p>
+          </div>
+          <div class="modal-footer">
+                
+          </div>
+        </div>
+        
+    </div> <!-- /container -->
+    
+    
+			
+			
+
+<!-- JS -->
+<script src="http://openlayers.org/api/OpenLayers.js"></script>
+<!--<script src="../js/OpenLayers.js"></script> Maybe move things locally in future if faster-->
+<script type="text/javascript" src="../js/heatmap.js"></script>
+<script type="text/javascript" src="../js/heatmap-openlayers.js"></script>
+
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="../js/jquery.js"></script>
+<script src="../bootstrap/js/bootstrap-transition.js"></script>
+<script src="../bootstrap/js/bootstrap-button.js"></script>
+<script src="../bootstrap/js/bootstrap-modal.js"></script>
+<!--
+<script src="../bootstrap/js/bootstrap-collapse.js"></script>
+<script src="../bootstrap/js/bootstrap-carousel.js"></script>
+<script src="../bootstrap/js/bootstrap-typeahead.js"></script>
+<script src="../bootstrap/js/bootstrap-alert.js"></script>
+
+<script src="../bootstrap/js/bootstrap-dropdown.js"></script>
+<script src="../bootstrap/js/bootstrap-scrollspy.js"></script>
+<script src="../bootstrap/js/bootstrap-tab.js"></script>
+<script src="../bootstrap/js/bootstrap-tooltip.js"></script>
+<script src="../bootstrap/js/bootstrap-popover.js"></script>
+-->
+<script type="text/javascript">
+var map, layer, heatmap, losAngeles, sanFrancisco, greece;
+
+
+
+function init(){
+
+	
+   // setup map
+   map = new OpenLayers.Map( 'heatmapArea',{
+        sphericalMercator: true,
+        maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
+        displayProjection: new OpenLayers.Projection("EPSG:4326") // lat lon
+   });
+   
+   var proj = new OpenLayers.Projection("EPSG:4326");
+   center = new OpenLayers.LonLat(0, 0);
+   losAngeles = new OpenLayers.LonLat(-118.2960, 34.02848);
+   sanFrancisco = new OpenLayers.LonLat(-122.4370, 37.7899);
+   greece = new OpenLayers.LonLat(24.95748, 35.23076);
+   
+   // this is required due to internal representation of coordinates being different than lat lon
+   losAngeles.transform(proj, map.getProjectionObject());
+   sanFrancisco.transform(proj, map.getProjectionObject());
+   greece.transform(proj, map.getProjectionObject());
+   
+   
+   console.log('setting center');
+   // set default center to los angeles
+   map.setCenter(sanFrancisco, 10, true, true);
+   map.addControl(new OpenLayers.Control.MousePosition());
+   
+   
+}
+
+window.onload = function(){ 
+    init(); 
+    bind();
+    ajax();
+};
+
+function bind(){
+
+    function zoomTo(that, location){
+        console.log('zoomTo');
+        console.log(location);
+        
+        $('.topBtn').each(function(item){ 
+            $(this).removeClass('active');
+        });
+        that.addClass('active');
+
+        map.setCenter(location, 10, true, true);
+    }
+
+    // topbar buttons
+    $('#sanFrancisco').click(function(event){
+        zoomTo($(this), sanFrancisco);
+    });
+    $('#losAngeles').click(function(event){
+        zoomTo($(this), losAngeles);
+    });
+    $('#greece').click(function(event){
+        zoomTo($(this), greece);
+    });
+
+}
+
+// Call server for heatmaps and other layer data
+function ajax(){
+
+    // call for heatmap
+    $.ajax({
+        url: "/sf/heatmap",
+        cache: false,
+        success: function(res){
+            
+            var testData = JSON.parse(res);
+            var transformedTestData = { max: testData.max , data: [] },
+            data = testData.data,
+            datalen = data.length,
+            nudata = [];
+
+            // in order to use the OpenLayers Heatmap Layer we have to transform our data into 
+            // { max: <max>, data: [{lonlat: <OpenLayers.LonLat>, count: <count>},...]}
+
+            while(datalen--){
+                nudata.push({
+                    lonlat: new OpenLayers.LonLat(data[datalen].lon, data[datalen].lat),
+                    count: data[datalen].count
+                });
+            }
+
+            transformedTestData.data = nudata;
+
+           
+           layer = new OpenLayers.Layer.OSM();
+
+           // create our heatmap layer
+           heatmap = new OpenLayers.Layer.Heatmap( "Heatmap Layer", map, layer, {visible: true, radius:6}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
+           map.addLayers([layer, heatmap]);
+           heatmap.setDataSet(transformedTestData);
+
+        } // END success
+    }); // END ajax
+
+    
+
+}
+
+
+document.getElementById("tog").onclick = function(){
+    heatmap.toggle();	
+};
+
+
+
+</script>
+
+</html>
