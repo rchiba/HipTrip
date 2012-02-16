@@ -1,3 +1,14 @@
 HipTrip
 
 A tool for finding hip travel tips for your next trip.
+
+Instructions 
+
+Load up python, rdflib, other dependencies. 
+Run python main.py
+
+/src - python files that run webapp 
+/src/collectionScripts - scripts used to grab data from API's
+/src/static - all the static files for the page
+/src/views - html views (rendered using django templating)
+

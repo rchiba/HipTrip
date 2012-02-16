@@ -57,14 +57,15 @@ plugin.register(
     'rdfextras.sparql.query', 'SPARQLQueryResult')
         
 
-
+heatmapQuery = None
+        
 class HeatmapHandler(webapp2.RequestHandler):
     def get(self, location):
         # return a list of JSON coordinates based on logic located here
         # where are the tourists and where are the locals?
         print "HeatmapHandler(self, "+location+")"
-        heatmapQuery = null
         # get each flickr photo, lat, lon, and owner's based_near
+        #heatmapQuery
         # heatmapQuery = g.query(
         # """SELECT ?photoID ?lat ?lon ?ownerLocation
            # WHERE {
@@ -80,7 +81,9 @@ class HeatmapHandler(webapp2.RequestHandler):
             # rdf=RDF,
             # geo=GEO,
             # foaf=FOAF))
-        if(heatmapQuery == null):    
+            
+        global heatmapQuery
+        if heatmapQuery is None:    
             heatmapQuery = g.query(
             """SELECT ?photoURI ?lat ?lon
                WHERE {

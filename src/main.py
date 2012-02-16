@@ -6,6 +6,9 @@ import os
 from django.template import Template, Context, loader
 from django.conf import settings
 
+from paste.urlparser import StaticURLParser
+from paste.cascade import Cascade
+from paste import httpserver
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__)) 
 TEMPLATE_ROOT = os.path.join(PROJECT_ROOT, "views").replace('\\','/')
@@ -17,10 +20,20 @@ class HelloWebapp2(webapp2.RequestHandler):
     def get(self):
         self.response.write('Hello, webapp2!')
 
-app = webapp2.WSGIApplication([
+web_app = webapp2.WSGIApplication([
     webapp2.Route(r'/', handler='root.RootHandler', name='root'),
     webapp2.Route(r'/<location>/heatmap', handler='heatmap.HeatmapHandler' , name='heatmap'),
 ], debug=True)
+
+# serving static files in webapp2: http://stackoverflow.com/questions/8470733/how-can-i-handle-static-files-with-python-webapp2-in-heroku
+# Create an app to serve static files
+# Choose a directory separate from your source (e.g., "static/") so it isn't dl'able
+static_app = StaticURLParser("static/")
+
+# Create a cascade that looks for static files first, then tries the webapp
+app = Cascade([static_app, web_app])
+
+
 
 def main():
     from paste import httpserver

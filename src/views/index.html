@@ -1,4 +1,4 @@
-<html>
+Ôªø<html>
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
@@ -56,8 +56,8 @@
           <a class="brand" href="#">HipTrip</a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li class="active topBtn" id="losAngeles"><a href="#" >Los Angeles</a></li>
-              <li class="topBtn" id="sanFrancisco"><a href="#" >San Francisco</a></li>
+              <li class="topBtn" id="losAngeles"><a href="#" >Los Angeles</a></li>
+              <li class="active topBtn" id="sanFrancisco"><a href="#" >San Francisco</a></li>
               <li class="topBtn" id="greece"><a href="#" >Greece</a></li>
             </ul>
             <ul class="nav pull-right">
@@ -78,11 +78,11 @@
             <h2>Name of Business</h2>
             <h4>Hipness</h4>
             <div class="progress">
-              <div class="bar" style="width: 60%;"></div>
+              <div class="bar" style="width: 60%;">60/100 hipness</div>
             </div>
             <h4>Review Rating</h4>
             <div class="progress">
-              <div class="bar" style="width: 90%;"></div>
+              <div class="bar" style="width: 90%;">4/5 stars</div>
             </div>
             <br />
             
@@ -98,9 +98,9 @@
             
             <h4>Overlays</h4>
             <div class="btn-group" data-toggle="buttons-checkbox">
-                <button id="tog" class="btn btn-primary active">Heatmap</button>
-                <button class="btn btn-primary">WikiTravel</button>
-                <button class="btn btn-primary">TripAdvisor</button>
+                <button id="tog" class="btn btn-primary active">Locals</button>
+                <button class="btn btn-primary">Tourists</button>
+                <button class="btn btn-primary">HipTips</button>
             </div>
             
         </div>
@@ -108,11 +108,11 @@
         
         <div class="modal hide fade" id = "aboutModal" style="display:none">
           <div class="modal-header">
-            <a class="close" data-dismiss="modal">◊</a>
+            <a class="close" data-dismiss="modal">√ó</a>
             <h3>About HipTrip</h3>
           </div>
           <div class="modal-body">
-            <p>When traveling, there are many existing services that provide reviews to help travelers decide where to dine, shop, or explore. However, distinguishing between places that tourists frequent and places that locals frequent is a challenge that continues to elude review services. In this paper, we present HipTrip, a system that utilizes geo-spatial data from various public sources to determine tourist ìhotspotsî, and finds highly rated points of interest away from these areas. This application utilizes Semantic Web technology, knowledge bases, and information extraction techniques to synthesize traveler behavior and points of interest in order to expose valuable travel suggestions.</p>
+            <p>When traveling, there are many existing services that provide reviews to help travelers decide where to dine, shop, or explore. However, distinguishing between places that tourists frequent and places that locals frequent is a challenge that continues to elude review services. In this paper, we present HipTrip, a system that utilizes geo-spatial data from various public sources to determine tourist ‚Äúhotspots‚Äù, and finds highly rated points of interest away from these areas. This application utilizes Semantic Web technology, knowledge bases, and information extraction techniques to synthesize traveler behavior and points of interest in order to expose valuable travel suggestions.</p>
           </div>
           <div class="modal-footer">
                 
@@ -155,13 +155,18 @@ var map, layer, heatmap, losAngeles, sanFrancisco, greece;
 
 function init(){
 
-	
+    console.log('init');
    // setup map
    map = new OpenLayers.Map( 'heatmapArea',{
         sphericalMercator: true,
         maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
         displayProjection: new OpenLayers.Projection("EPSG:4326") // lat lon
    });
+   
+   // create our heatmap layer 
+   layer = new OpenLayers.Layer.OSM();
+   heatmap = new OpenLayers.Layer.Heatmap( "Heatmap Layer", map, layer, {visible: true, radius:4}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
+   map.addLayers([layer, heatmap]);
    
    var proj = new OpenLayers.Projection("EPSG:4326");
    center = new OpenLayers.LonLat(0, 0);
@@ -176,10 +181,10 @@ function init(){
    
    
    console.log('setting center');
-   // set default center to los angeles
-   map.setCenter(sanFrancisco, 10, true, true);
+   // set default center to sf
+   map.setCenter(sanFrancisco, 13, true, true);
    map.addControl(new OpenLayers.Control.MousePosition());
-   
+   console.log('done init');
    
 }
 
@@ -190,7 +195,7 @@ window.onload = function(){
 };
 
 function bind(){
-
+    console.log('bind');
     function zoomTo(that, location){
         console.log('zoomTo');
         console.log(location);
@@ -218,7 +223,7 @@ function bind(){
 
 // Call server for heatmaps and other layer data
 function ajax(){
-
+    console.log('ajax()');
     // call for heatmap
     $.ajax({
         url: "/sf/heatmap",
@@ -243,12 +248,7 @@ function ajax(){
 
             transformedTestData.data = nudata;
 
-           
-           layer = new OpenLayers.Layer.OSM();
-
-           // create our heatmap layer
-           heatmap = new OpenLayers.Layer.Heatmap( "Heatmap Layer", map, layer, {visible: true, radius:6}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
-           map.addLayers([layer, heatmap]);
+          
            heatmap.setDataSet(transformedTestData);
 
         } // END success
