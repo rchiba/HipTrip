@@ -98,9 +98,9 @@
             
             <h4>Overlays</h4>
             <div class="btn-group" data-toggle="buttons-checkbox">
-                <button id="tog" class="btn btn-primary active">Locals</button>
+                <button id="heatmapToggle" class="btn btn-primary active">Locals</button>
                 <button class="btn btn-primary">Tourists</button>
-                <button class="btn btn-primary">HipTips</button>
+                <button id="poiToggle" class="btn btn-primary">HipTips</button>
             </div>
             
         </div>
@@ -149,7 +149,7 @@
 <script src="../bootstrap/js/bootstrap-popover.js"></script>
 -->
 <script type="text/javascript">
-var map, layer, heatmap, losAngeles, sanFrancisco, greece;
+var map, layer, heatmap, markers, losAngeles, sanFrancisco, greece;
 
 
 
@@ -192,6 +192,8 @@ window.onload = function(){
     init(); 
     bind();
     ajax();
+    
+    renderPOI();
 };
 
 function bind(){
@@ -218,6 +220,13 @@ function bind(){
     $('#greece').click(function(event){
         zoomTo($(this), greece);
     });
+    
+    document.getElementById("heatmapToggle").onclick = function(){
+        heatmap.toggle();	
+    };
+    document.getElementById("poiToggle").onclick = function(){
+        markers.toggle();	
+    };
 
 }
 
@@ -253,15 +262,51 @@ function ajax(){
 
         } // END success
     }); // END ajax
+}
 
+// Creates the layer for the points of interest
+function renderPOI(){
+
+    // this would come from an ajax call
+    var poiDataset = {
+        'uri': {
+            'name': 'Wendys',
+            'lat': '-122.4350',
+            'lon': '37.7899',
+            'hipness': '10'
+        },
+        'uri2': {
+            'name': 'Manas Indian',
+            'lat': '-122.4371',
+            'lon': '37.7798',
+            'hipness': '85'
+        }
+    }
+
+    markers = new OpenLayers.Layer.Markers( "Markers" );
+    map.addLayer(markers);
     
-
+    // Custom marker
+    var size = new OpenLayers.Size(21,25);
+    var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+    var icon = new OpenLayers.Icon('static/img/marker.png', size, offset);
+    
+    // add each poi into the markers layer
+    for (var key in poiDataset) {
+        if (poiDataset.hasOwnProperty(key)) {
+            var poi = poiDataset[key];
+            var lonLat = new OpenLayers.LonLat( poi.lat , poi.lon ).transform(
+                new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                map.getProjectionObject() // to Spherical Mercator Projection
+            );
+            markers.addMarker(new OpenLayers.Marker(lonLat), icon.clone());
+        }
+    }
+    
 }
 
 
-document.getElementById("tog").onclick = function(){
-    heatmap.toggle();	
-};
+
 
 
 
