@@ -76,9 +76,9 @@ def storePhotosFrom(place):
     if place == 'san francisco':
         myBbox = '-122.532,37.708,-122.368,37.813'
     elif place == 'los angeles':
-        myBbox = '-122.532,37.708,-122.368,37.813'
+        myBbox = ' '
     elif place == 'greece':
-        myBbox = '-122.532,37.708,-122.368,37.813'
+        myBbox = ' '
         
     while page < pages:
         page += 1

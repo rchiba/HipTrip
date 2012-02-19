@@ -108,7 +108,7 @@ class HeatmapHandler(webapp2.RequestHandler):
             lat = row[1]
             lon = row[2]
             resData = resData+"{\"lat\": "+lat+", \"lon\": "+lon+", \"count\": 1},"
-            print(row)
+            #print(row)
             #print(str(idx)+" out of "+str(len(heatmapQuery.result)))
             
         resData = resData[:-1] #remove the trailing comma

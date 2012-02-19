@@ -4,13 +4,13 @@
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 <title>HipTrip</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="../bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
         <style>
           body {
             padding-top: 40px; /* 60px to make the container go all the way to the bottom of the topbar */
           }
         </style>
-        <link href="../bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+        <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 		<style>
 			#heatmapArea {
 				position:relative;
@@ -27,7 +27,7 @@
                 background-color:#fff;
 				padding:15px;
                 opacity:.8;
-                background-image:url(../img/grid_noise.png);
+                background-image:url(/img/grid_noise.png);
                 border: 1px solid #999;
 			}
             
@@ -127,26 +127,26 @@
 
 <!-- JS -->
 <script src="http://openlayers.org/api/OpenLayers.js"></script>
-<!--<script src="../js/OpenLayers.js"></script> Maybe move things locally in future if faster-->
-<script type="text/javascript" src="../js/heatmap.js"></script>
-<script type="text/javascript" src="../js/heatmap-openlayers.js"></script>
+<!--<script src="/js/OpenLayers.js"></script> Maybe move things locally in future if faster-->
+<script type="text/javascript" src="/js/heatmap.js"></script>
+<script type="text/javascript" src="/js/heatmap-openlayers.js"></script>
 
 <!-- Placed at the end of the document so the pages load faster -->
-<script src="../js/jquery.js"></script>
-<script src="../bootstrap/js/bootstrap-transition.js"></script>
-<script src="../bootstrap/js/bootstrap-button.js"></script>
-<script src="../bootstrap/js/bootstrap-modal.js"></script>
+<script src="/js/jquery.js"></script>
+<script src="/bootstrap/js/bootstrap-transition.js"></script>
+<script src="/bootstrap/js/bootstrap-button.js"></script>
+<script src="/bootstrap/js/bootstrap-modal.js"></script>
 <!--
-<script src="../bootstrap/js/bootstrap-collapse.js"></script>
-<script src="../bootstrap/js/bootstrap-carousel.js"></script>
-<script src="../bootstrap/js/bootstrap-typeahead.js"></script>
-<script src="../bootstrap/js/bootstrap-alert.js"></script>
+<script src="/bootstrap/js/bootstrap-collapse.js"></script>
+<script src="/bootstrap/js/bootstrap-carousel.js"></script>
+<script src="/bootstrap/js/bootstrap-typeahead.js"></script>
+<script src="/bootstrap/js/bootstrap-alert.js"></script>
 
-<script src="../bootstrap/js/bootstrap-dropdown.js"></script>
-<script src="../bootstrap/js/bootstrap-scrollspy.js"></script>
-<script src="../bootstrap/js/bootstrap-tab.js"></script>
-<script src="../bootstrap/js/bootstrap-tooltip.js"></script>
-<script src="../bootstrap/js/bootstrap-popover.js"></script>
+<script src="/bootstrap/js/bootstrap-dropdown.js"></script>
+<script src="/bootstrap/js/bootstrap-scrollspy.js"></script>
+<script src="/bootstrap/js/bootstrap-tab.js"></script>
+<script src="/bootstrap/js/bootstrap-tooltip.js"></script>
+<script src="/bootstrap/js/bootstrap-popover.js"></script>
 -->
 <script type="text/javascript">
 var map, layer, heatmap, markers, losAngeles, sanFrancisco, greece;
@@ -179,6 +179,9 @@ function init(){
    sanFrancisco.transform(proj, map.getProjectionObject());
    greece.transform(proj, map.getProjectionObject());
    
+   losAngeles.urlString = "losAngeles";
+   sanFrancisco.urlString = "sanFrancisco";
+   greece.urlString = "greece";
    
    console.log('setting center');
    // set default center to sf
@@ -198,17 +201,54 @@ window.onload = function(){
 
 function bind(){
     console.log('bind');
+    
     function zoomTo(that, location){
         console.log('zoomTo');
         console.log(location);
         
+        // Changing button state
         $('.topBtn').each(function(item){ 
             $(this).removeClass('active');
         });
         that.addClass('active');
 
         map.setCenter(location, 10, true, true);
+        
+        // Loading heatmap data
+        $.ajax({
+            url: "/"+location.urlString+"/heatmap",
+            cache: false,
+            success: function(res){
+                
+                var testData = JSON.parse(res);
+                var transformedTestData = { max: testData.max , data: [] },
+                data = testData.data,
+                datalen = data.length,
+                nudata = [];
+
+                // in order to use the OpenLayers Heatmap Layer we have to transform our data into 
+                // { max: <max>, data: [{lonlat: <OpenLayers.LonLat>, count: <count>},.]}
+
+                while(datalen--){
+                    nudata.push({
+                        lonlat: new OpenLayers.LonLat(data[datalen].lon, data[datalen].lat),
+                        count: data[datalen].count
+                    });
+                }
+
+                transformedTestData.data = nudata;
+
+              
+               heatmap.setDataSet(transformedTestData);
+
+            } // END success
+        }); // END heatmap ajax
+        
+        
+        
+        
     }
+    
 
     // topbar buttons
     $('#sanFrancisco').click(function(event){
@@ -246,7 +286,7 @@ function ajax(){
             nudata = [];
 
             // in order to use the OpenLayers Heatmap Layer we have to transform our data into 
-            // { max: <max>, data: [{lonlat: <OpenLayers.LonLat>, count: <count>},...]}
+            // { max: <max>, data: [{lonlat: <OpenLayers.LonLat>, count: <count>},.]}
 
             while(datalen--){
                 nudata.push({
@@ -289,7 +329,7 @@ function renderPOI(){
     // Custom marker
     var size = new OpenLayers.Size(21,25);
     var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-    var icon = new OpenLayers.Icon('static/img/marker.png', size, offset);
+    var icon = new OpenLayers.Icon('http://localhost:8080/img/marker.png', size, offset);
     
     // add each poi into the markers layer
     for (var key in poiDataset) {
@@ -299,7 +339,10 @@ function renderPOI(){
                 new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
                 map.getProjectionObject() // to Spherical Mercator Projection
             );
-            markers.addMarker(new OpenLayers.Marker(lonLat), icon.clone());
+            var marker = new OpenLayers.Marker(lonLat);
+            marker.events.register('mousedown', marker, function(evt) { alert(this.icon.url); OpenLayers.Event.stop(evt); });
+            
+            markers.addMarker(marker, icon.clone());
         }
     }
     
