@@ -15,6 +15,8 @@ from tempfile import mkdtemp
 from xml.dom.minidom import parseString
 import webapp2
 
+
+
 rdflib.plugin.register('MySQL', Store,'rdfstorage.MySQL', 'MySQL')
 
 default_graph_uri = "http://example.com/rdfstore"
@@ -60,10 +62,10 @@ plugin.register(
 heatmapQuery = None
         
 class HeatmapHandler(webapp2.RequestHandler):
-    def get(self, location):
+    def get(self, location, type):
         # return a list of JSON coordinates based on logic located here
         # where are the tourists and where are the locals?
-        print "HeatmapHandler(self, "+location+")"
+        print "HeatmapHandler(self, "+location+", "+type+")"
         # get each flickr photo, lat, lon, and owner's based_near
         #heatmapQuery
         # heatmapQuery = g.query(

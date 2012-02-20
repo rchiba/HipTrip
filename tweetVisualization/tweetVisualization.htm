@@ -18,10 +18,12 @@
 
 		<script src="./orth_files/ThreeCanvas.js"></script>
 		<script src="./orth_files/ThreeExtras.js"></script>
-
+        <script src="./orth_files/optimer_bold.typeface.js"></script>
+		<script src="./orth_files/optimer_regular.typeface.js"></script>
 		<script src="./orth_files/Stats.js"></script>
         <script src="./orth_files/jquery.min.js"></script>
         <script src="./orth_files/jquery-ui-1.8.17.custom.min.js"></script>
+        <script src="tweets.js"></script>
 
 		<script>
 
@@ -29,6 +31,8 @@
         
 			var container, stats;
 			var camera, scene, renderer;
+            var parent;
+            var addCubes;
             var scale = 400; // width of one side of the grid
 			init();
 			animate();
@@ -54,7 +58,14 @@
 				scene = new THREE.Scene();
 
 				scene.add( camera );
+                
+                parent = new THREE.Object3D();
+				parent.position.y = 0;
+                parent.position.z = -300;
 
+				scene.add( parent );
+                createText();
+                
 				// Grid
 
 				var geometry = new THREE.Geometry();
@@ -77,28 +88,34 @@
 
 				// Cubes
                 var dataScale = 4000; // a .1 difference in lat or lon becomes a 400 px difference
-                var data=[
-                    {"lat" : 37.7261, "lon" : -122.4394, "time" : "2012-02-18T23:55:49"}
-                 ]
-                var center = {"lat": 37.758, "lon": -122.442}
-				var geometry = new THREE.CubeGeometry( 5, 5, 5 );
-				var material = new THREE.MeshLambertMaterial( { color: 0xffffff, shading: THREE.FlatShading, overdraw: true } );
+                var center = {"lat": 37.758, "lon": -122.442};
+                
+                addCubes = function(index){
+                    var index = Math.floor(index);
+                    var range = 20; // how many cubes are displayed
+                    var i1 = index - range/2;
+                    var i2 = index + range/2;
+                
+                    var geometry = new THREE.CubeGeometry( 2, 2, 2 );
+                    var material = new THREE.MeshLambertMaterial( { color: 0xffffff, shading: THREE.FlatShading, overdraw: true } );
+                    
+                    for ( var i = i1; i < i2; i ++ ) {
+                    
+                        var cubeData = tweetData[i];
+                        var cube = new THREE.Mesh( geometry, material );
+                        cube.overdraw = true;
 
-				for ( var i = 0; i < data.length; i ++ ) {
-                    console.log('hello');
-					var cube = new THREE.Mesh( geometry, material );
-					cube.overdraw = true;
+                        cube.scale.y = 1;
 
-					cube.scale.y = 1;
+                        cube.position.x = Math.floor((center.lat - cubeData.lat)*dataScale);
+                        cube.position.y = ( cube.scale.y * 25 ) / 2;
+                        cube.position.z = Math.floor((center.lon - cubeData.lon)*dataScale);
+                        console.log((center.lat - cubeData.lat)+" "+(center.lon - cubeData.lon));
+                        console.log(cube.position.x+" "+cube.position.z);
+                        scene.add(cube);
 
-					cube.position.x = Math.floor((center.lat - data[i].lat)*dataScale);
-					cube.position.y = ( cube.scale.y * 25 ) / 2;
-					cube.position.z = Math.floor((center.lon - data[i].lon)*dataScale);
-                    console.log((center.lat - data[i].lat)+" "+(center.lon - data[i].lon));
-                    console.log(cube.position.x+" "+cube.position.z);
-					scene.add(cube);
-
-				}
+                    }
+                }
 
 				// Lights
 
@@ -146,12 +163,117 @@
 			function render() {
 
 				var timer = new Date().getTime() * 0.0001;
-
-				//camera.position.x = Math.cos( timer ) * 200;
-				//camera.position.z = Math.sin( timer ) * 200;
+                /*
+				camera.position.x = Math.cos( timer ) * 200;
+				camera.position.z = Math.sin( timer ) * 200;
+                */
 				camera.lookAt( scene.position );
 
+                
+                
 				renderer.render( scene, camera );
+
+			}
+            
+            function createText() {
+
+                var text = "2012-02-17 23:49:20",
+                    height = 10,
+                    size = 20,
+                    hover = 0,
+                    bevelEnabled = false,
+                    bevelSegments = 3,
+
+				font = "optimer", 		// helvetiker, optimer, gentilis, droid sans, droid serif
+				weight = "normal",		// normal bold
+				style = "normal";		// normal italic
+                
+                faceMaterial = new THREE.MeshFaceMaterial();
+                textMaterialFront = new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.FlatShading } );
+				textMaterialSide = new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } );
+            
+				textGeo = new THREE.TextGeometry( text, {
+
+					size: size,
+					height: height,
+
+					font: font,
+					weight: weight,
+					style: style,
+
+					material: 0,
+					extrudeMaterial: 1
+
+				});
+
+				textGeo.materials = [ textMaterialFront, textMaterialSide ];
+
+				textGeo.computeBoundingBox();
+				textGeo.computeVertexNormals();
+
+				// "fix" side normals by removing z-component of normals for side faces
+				// (this doesn't work well for beveled geometry as then we lose nice curvature around z-axis)
+
+				if ( ! bevelEnabled ) {
+
+					var triangleAreaHeuristics = 0.1 * ( height * size );
+
+					for ( var i = 0; i < textGeo.faces.length; i ++ ) {
+
+						var face = textGeo.faces[ i ];
+
+						if ( face.materialIndex == 1 ) {
+
+							for ( var j = 0; j < face.vertexNormals.length; j ++ ) {
+
+								face.vertexNormals[ j ].z = 0;
+								face.vertexNormals[ j ].normalize();
+
+							}
+
+							var va = textGeo.vertices[ face.a ].position;
+							var vb = textGeo.vertices[ face.b ].position;
+							var vc = textGeo.vertices[ face.c ].position;
+
+							var s = THREE.GeometryUtils.triangleArea( va, vb, vc );
+
+							if ( s > triangleAreaHeuristics ) {
+
+								for ( var j = 0; j < face.vertexNormals.length; j ++ ) {
+
+									face.vertexNormals[ j ].copy( face.normal );
+
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+				var centerOffset = -0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
+                var material = new THREE.MeshLambertMaterial( { color: 0xffffff, shading: THREE.FlatShading, overdraw: true } );
+				textMesh1 = new THREE.Mesh( textGeo, material );
+
+                
+                
+                
+				textMesh1.position.x = centerOffset;
+				textMesh1.position.y = hover;
+				textMesh1.position.z = 0;
+
+				textMesh1.rotation.x =  Math.PI * 1.5;
+				textMesh1.rotation.y = Math.PI * 0;
+                textMesh1.rotation.z = Math.PI * 0;
+/*
+                var geometry = new THREE.CubeGeometry( 10, 10, 10 );
+                var material = new THREE.MeshLambertMaterial( { color: 0xffffff, shading: THREE.FlatShading, overdraw: true } );
+                textMesh1 = new THREE.Mesh( geometry, material );*/
+                
+                
+				parent.add( textMesh1 );
 
 			}
             
@@ -161,8 +283,9 @@
                 
                 $( "#slider" ).bind( "slide", function(event, ui) {
                     // called as mouse moves slider - goes from 0 to 100
+                   
+                    addCubes(tweetData.length*(ui.value/100.0));
                     
-                    // renders new area
                 });
                     
             });

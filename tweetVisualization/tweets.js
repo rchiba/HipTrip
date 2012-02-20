@@ -1,4 +1,4 @@
-[{"lat": "37.7812", "lon": "-122.403", "time": "2012-02-17 23:58:39", "text": "Office vsitors (post girl scout cookie sale) (@ foursquare SF w/ @inbredrevenge @holdenkarau @simonfl) [pic]: http://t.co/XiHsN8Im"},
+var tweetData = [{"lat": "37.7812", "lon": "-122.403", "time": "2012-02-17 23:58:39", "text": "Office vsitors (post girl scout cookie sale) (@ foursquare SF w/ @inbredrevenge @holdenkarau @simonfl) [pic]: http://t.co/XiHsN8Im"},
 {"lat": "37.7382", "lon": "-122.3808", "time": "2012-02-17 23:56:32", "text": "I am the king of all that are named Mitch Lopez. I never saw that name combination until I lost my wallet + soc sec card in the early 90's"},
 {"lat": "37.7823", "lon": "-122.4003", "time": "2012-02-17 23:55:38", "text": "Holy Popcorn, Candyman! The girls of @LePopcorn_Candy sent us a caboodle of snacks. Thanks y'all! cc @brianp http://t.co/ltzgVQjQ"},
 {"lat": "37.817", "lon": "-122.4782", "time": "2012-02-17 23:55:28", "text": "Terrifying but also fun to walk over this w/ @coopnassssty to begin out adventure in t  @ Golden Gate Bridge http://t.co/q3Qw0zqF"},

@@ -22,7 +22,7 @@ class HelloWebapp2(webapp2.RequestHandler):
 
 web_app = webapp2.WSGIApplication([
     webapp2.Route(r'/', handler='root.RootHandler', name='root'),
-    webapp2.Route(r'/<location>/heatmap', handler='heatmap.HeatmapHandler' , name='heatmap'),
+    webapp2.Route(r'/<location>/heatmap/<type>', handler='heatmap.HeatmapHandler' , name='heatmap'),
 ], debug=True)
 
 # serving static files in webapp2: http://stackoverflow.com/questions/8470733/how-can-i-handle-static-files-with-python-webapp2-in-heroku
