@@ -62,10 +62,9 @@ plugin.register(
 heatmapQuery = None
         
 class HeatmapHandler(webapp2.RequestHandler):
-    def get(self, location, type):
-        # return a list of JSON coordinates based on logic located here
-        # where are the tourists and where are the locals?
-        print "HeatmapHandler(self, "+location+", "+type+")"
+
+    def getFlickrHeatmap():
+    
         # get each flickr photo, lat, lon, and owner's based_near
         #heatmapQuery
         # heatmapQuery = g.query(
@@ -83,7 +82,7 @@ class HeatmapHandler(webapp2.RequestHandler):
             # rdf=RDF,
             # geo=GEO,
             # foaf=FOAF))
-            
+    
         global heatmapQuery
         if heatmapQuery is None:    
             heatmapQuery = g.query(
@@ -116,4 +115,17 @@ class HeatmapHandler(webapp2.RequestHandler):
         resData = resData[:-1] #remove the trailing comma
         resData = resData+"]}"
         self.response.write(resData)
+        
+    def getTwitterHeatmap():
+        print "getTwitterHeatmap"
 
+    def get(self, location, type):
+        # return a list of JSON coordinates based on logic located here
+        # where are the tourists and where are the locals?
+        print "HeatmapHandler(self, "+location+", "+type+")"
+        
+        if type == "flickr":
+            getFlickrHeatmap()
+        elif type == "twitter":
+            getTwitterHeatmap()
+    
