@@ -16,9 +16,6 @@ TEMPLATE_ROOT = os.path.join(PROJECT_ROOT, "views").replace('\\','/')
 settings.configure(DEBUG=True, TEMPLATE_DEBUG=True,
     TEMPLATE_DIRS = (TEMPLATE_ROOT,)) #the comma is important, damn it
 
-class HelloWebapp2(webapp2.RequestHandler):
-    def get(self):
-        self.response.write('Hello, webapp2!')
 
 web_app = webapp2.WSGIApplication([
     webapp2.Route(r'/', handler='root.RootHandler', name='root'),
