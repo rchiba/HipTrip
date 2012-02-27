@@ -53,7 +53,7 @@ class TwitterDataScraper():
         self.type = type
         #these are used in querying twitter
         self.locations = {"san francisco":'37.758,-122.442,7km',
-                            "los angeles": "",
+                            "los angeles": "34.03,-118.33,20km",
                             "greece": ""}
         
         self.userDict = {} # used as a buffer to hold 100 users before we send out query for user info
@@ -65,12 +65,14 @@ class TwitterDataScraper():
         self.tweetsCollection = db.tweetsCollection
         self.tweetsCollection.ensure_index( [("createdAt", 1 )] )
         self.tweetsCollection.ensure_index( [("loc", GEO2D )] )
+        self.tweetsCollection.ensure_index( [("place", 1 )] )
         self.tweetUsersCollection = db.tweetUsersCollection
         self.tweetUsersCollection.ensure_index( [("id", 1 )] )
+        
     # wrapper function for recursive solution to finding tweets
     def storeTweetsFor(self, place):
         self.geo = self.locations[place]
-            
+        self.place = place
         #ryo - last id was 169843803547639808
         self.recursivelyStoreTweets(self.geo, self.untilDate, '172054876644315136')
         
@@ -103,7 +105,8 @@ class TwitterDataScraper():
                         "fromUser": fromUser,
                         "loc": [lat,lon],
                         "text": text, 
-                        "fromUserID": fromUserID
+                        "fromUserID": fromUserID,
+                        "place": self.place
                     }
                     # this should take care of duplicate insertions
                     self.tweetsCollection.update(key, tweet, True)
@@ -141,7 +144,8 @@ class TwitterDataScraper():
                                 "followersCount": followersCount, 
                                 "geoEnabled": geoEnabled,
                                 "tweetCount": tweetCount,
-                                "description": description
+                                "description": description,
+                                "place": self.place
                             }
                             
                             self.tweetUsersCollection.update(userKey, userValue, True)

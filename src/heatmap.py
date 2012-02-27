@@ -29,24 +29,24 @@ class HeatmapHandler(webapp2.RequestHandler):
         connection = Connection()
         db = connection['tweetsDB']
         self.tweets = db.tweetsCollection
-        print '%s entries in tweetsCollection' % self.tweets.count()
+        #print '%s entries in tweetsCollection' % self.tweets.count()
         self.tweetUsers = db.tweetUsersCollection
-        print '%s entries in tweetUsersCollection' % self.tweetUsers.count()
+        #print '%s entries in tweetUsersCollection' % self.tweetUsers.count()
         
         
         db = connection['flickrDB']
         self.flickr = db.flickrCollection
-        print '%s entries in flickrCollection' % self.flickr.count()
+        #print '%s entries in flickrCollection' % self.flickr.count()
                            
-    def getFlickrHeatmap(self):
+    def getFlickrHeatmap(self, place = 'san francisco'):
         start = time.clock()
 
         resData = "{ \"max\":1, \"data\":["
-        for photo in self.flickr.find():
-            lat = photo['lat']
-            lon = photo['lon']
+        for photo in self.flickr.find({"place":place}):
+            lat = photo['loc'][0]
+            lon = photo['loc'][1]
             resData = '%s {"lat": %s, "lon": %s, "count": 1},' % (resData, lat, lon)
-        resData = resData[:-1] #remove the trailing comma
+        if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
         resData = resData+"]}"
         
         elapsed = (time.clock() - start)   
@@ -55,23 +55,24 @@ class HeatmapHandler(webapp2.RequestHandler):
         
         
     # gets the twitter heatmap using either mongo or sleepycat dbtype
-    def getTwitterHeatmap(self):
+    def getTwitterHeatmap(self, place = 'san francisco'):
+        print 'place is %s'%place
         start = time.clock()
         resData = "{ \"max\":1, \"data\":["
-        for tweet in self.tweets.find():
+        for tweet in self.tweets.find({"place":place}):
             lat = tweet['loc'][0]
             lon = tweet['loc'][1]
             resData = '%s {"lat": %s, "lon": %s, "count": 1},' % (resData, lat, lon)
-        resData = resData[:-1] #remove the trailing comma
+        if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
         resData = resData+"]}"
         elapsed = (time.clock() - start)
         print "getTwitterHeatmap finished in %s seconds" % elapsed
         self.response.write(resData)
         
-    def getLocalsHeatmap(self):
+    def getLocalsHeatmap(self, place = 'san francisco'):
         start = time.clock()
         resData = "{ \"max\":1, \"data\":["
-        for tweet in self.tweets.find():
+        for tweet in self.tweets.find({"place":place}):
             #print tweet['fromUserID']
             if tweet['fromUserID'] is not None:
                 tweetUser = self.tweetUsers.find_one({'id':tweet['fromUserID']})
@@ -85,21 +86,21 @@ class HeatmapHandler(webapp2.RequestHandler):
                 lat = tweet['loc'][0]
                 lon = tweet['loc'][1]
                 resData = '%s {"lat": %s, "lon": %s, "count": 1},' % (resData, lat, lon)
-        for photo in self.flickr.find({"ownerLocation":re.compile('san francisco', re.IGNORECASE)}):
+        for photo in self.flickr.find({"place":place, "ownerLocation":re.compile('san francisco', re.IGNORECASE)}):
             #print 'photo ownerLocation:%s is a local' % photo['ownerLocation']
-            lat = photo['lat']
-            lon = photo['lon']
+            lat = photo['loc'][0]
+            lon = photo['loc'][1]
             resData = '%s {"lat": %s, "lon": %s, "count": 1},' % (resData, lat, lon)
-        resData = resData[:-1] #remove the trailing comma
+        if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
         resData = resData+"]}"
         elapsed = (time.clock() - start)
         print "getLocalsHeatmap finished in %s seconds" % elapsed
         self.response.write(resData)
         
-    def getTouristsHeatmap(self):
+    def getTouristsHeatmap(self, place = 'san francisco'):
         start = time.clock()
         resData = "{ \"max\":1, \"data\":["
-        for tweet in self.tweets.find():
+        for tweet in self.tweets.find({"place":place}):
             #print tweet['fromUserID']
             if tweet['fromUserID'] is not None:
                 tweetUser = self.tweetUsers.find_one({'id':tweet['fromUserID']})
@@ -108,31 +109,40 @@ class HeatmapHandler(webapp2.RequestHandler):
                     if tweetUserLocation is not None:
                         tweetUserLocation = tweetUserLocation.encode('utf-8')
                         #print tweetUserLocation
-            if(tweetUserLocation is not None and 'san francisco' in tweetUserLocation.lower()):
-                #print '%s is apparently a local' % tweetUserLocation
+            if(tweetUserLocation is not None and not 'san francisco' in tweetUserLocation.lower()):
+                #print '%s is apparently a tourist' % tweetUserLocation
                 lat = tweet['loc'][0]
                 lon = tweet['loc'][1]
                 resData = '%s {"lat": %s, "lon": %s, "count": 1},' % (resData, lat, lon)
-        for photo in self.flickr.find({"ownerLocation":re.compile('san francisco', re.IGNORECASE)}):
-            lat = photo['lat']
-            lon = photo['lon']
+        for photo in self.flickr.find({"place":place, "ownerLocation":{"$not":re.compile('san francisco', re.IGNORECASE)}}):
+            lat = photo['loc'][0]
+            lon = photo['loc'][1]
             resData = '%s {"lat": %s, "lon": %s, "count": 1},' % (resData, lat, lon)
-        resData = resData[:-1] #remove the trailing comma
+        if resData.endswith(","): resData = resData[:-1] #remove the trailing comma
         resData = resData+"]}"
         elapsed = (time.clock() - start)
         print "getTouristsHeatmap finished in %s seconds" % elapsed
         self.response.write(resData)
         
-    def get(self, location, type):
+    def get(self, place, type):
         # return a list of JSON coordinates based on logic located here
         # where are the tourists and where are the locals?
-        print "HeatmapHandler(self, "+location+", "+type+")"
+        print "HeatmapHandler(self, "+place+", "+type+")"
         #print "Tuples in graph: %s" % len(self.graph)
+        
+        #translate shortened place to place as used throughout this webapp
+        if place == 'sf':
+            place = 'san francisco'
+        elif place == 'la':
+            place = 'los angeles'
+        elif place == 'greece':
+            place = 'greece'
+        
         if type == "flickr":
-            self.getFlickrHeatmap()
+            self.getFlickrHeatmap(place)
         elif type == "twitter":
-            self.getTwitterHeatmap()
+            self.getTwitterHeatmap(place)
         elif type == "locals":
-            self.getLocalsHeatmap()
+            self.getLocalsHeatmap(place)
         elif type == "tourists":
-            self.getTouristsHeatmap()
+            self.getTouristsHeatmap(place)

@@ -226,8 +226,8 @@ function init(){
    sanFrancisco.transform(proj, map.getProjectionObject());
    greece.transform(proj, map.getProjectionObject());
    
-   losAngeles.urlString = "losAngeles";
-   sanFrancisco.urlString = "sanFrancisco";
+   losAngeles.urlString = "la";
+   sanFrancisco.urlString = "sf";
    greece.urlString = "greece";
    
    console.log('setting center');
@@ -241,7 +241,7 @@ function init(){
 window.onload = function(){ 
     init(); 
     bind();
-    ajax();
+    ajax('sf');
     
     renderPOI();
 };
@@ -249,7 +249,7 @@ window.onload = function(){
 function bind(){
     console.log('bind');
     
-    function zoomTo(that, location){
+    function zoomTo(that, location, zoom){
         console.log('zoomTo');
         console.log(location);
         
@@ -259,7 +259,7 @@ function bind(){
         });
         that.addClass('active');
 
-        map.setCenter(location, 10, true, true);
+        map.setCenter(location, zoom, true, true);
         
         // Loading heatmap data
        
@@ -268,13 +268,15 @@ function bind(){
 
     // topbar buttons
     $('#sanFrancisco').click(function(event){
-        zoomTo($(this), sanFrancisco);
+        zoomTo($(this), sanFrancisco, 13);
+        ajax('sf');
     });
     $('#losAngeles').click(function(event){
-        zoomTo($(this), losAngeles);
+        zoomTo($(this), losAngeles, 12);
+        ajax('la');
     });
     $('#greece').click(function(event){
-        zoomTo($(this), greece);
+        zoomTo($(this), greece, 12);
     });
     
     document.getElementById("heatmapLocalsToggle").onclick = function(){
@@ -296,14 +298,14 @@ function bind(){
 }
 
 // Call server for all heatmaps
-function ajax(){
-    console.log('ajax()');
+function ajax(place){
+    console.log('ajax('+place+')');
     // call for heatmap
     $.ajax({
-        url: "/sf/heatmap/twitter",
+        url: "/"+place+"/heatmap/twitter",
         cache: false,
         success: function(res){
-            
+            //console.log('/sf/heatmap/twitter'+res);
             var testData = JSON.parse(res);
             var transformedTestData = { max: testData.max , data: [] },
             data = testData.data,
@@ -334,9 +336,10 @@ function ajax(){
     
     
     $.ajax({
-        url: "/sf/heatmap/flickr",
+        url: "/"+place+"/heatmap/flickr",
         cache: false,
         success: function(res){
+            //console.log('/sf/heatmap/flickr'+res);
             var testData = JSON.parse(res);
             var transformedTestData = { max: testData.max , data: [] },
             data = testData.data,
@@ -357,9 +360,10 @@ function ajax(){
     }); // END ajax
     
     $.ajax({
-        url: "/sf/heatmap/tourists",
+        url: "/"+place+"/heatmap/tourists",
         cache: false,
         success: function(res){
+            //console.log('/sf/heatmap/tourists'+res);
             var testData = JSON.parse(res);
             var transformedTestData = { max: testData.max , data: [] },
             data = testData.data,
@@ -380,9 +384,10 @@ function ajax(){
     }); // END ajax
     
     $.ajax({
-        url: "/sf/heatmap/locals",
+        url: "/"+place+"/heatmap/locals",
         cache: false,
         success: function(res){
+            //console.log('/sf/heatmap/locals'+res);
             var testData = JSON.parse(res);
             var transformedTestData = { max: testData.max , data: [] },
             data = testData.data,

@@ -2,18 +2,7 @@
 import flickrapi
 
 from xml.etree import ElementTree
-
-# from rdflib.graph import Graph
-# from rdflib import Literal, BNode, Namespace
-# from rdflib import RDF
-# from rdflib.graph import ConjunctiveGraph as Graph
-# from rdflib import plugin
-# from rdflib.store import Store, NO_STORE, VALID_STORE
-# from rdflib.namespace import Namespace
-# from rdflib.term import Literal
-# from rdflib.term import URIRef
-# from tempfile import mkdtemp
-from pymongo import Connection
+from pymongo import Connection, GEO2D
 from xml.dom.minidom import parseString
 
 class FlickrDataScraper():
@@ -33,14 +22,18 @@ class FlickrDataScraper():
         if place == 'san francisco':
             self.myBbox = '-122.532,37.708,-122.368,37.813'
         elif place == 'los angeles':
-            self.myBbox = ' '
+            self.myBbox = '-118.55,33.84,-118.16,34.15'
         elif place == 'greece':
             self.myBbox = ' '
+        
+        self.place = place
         
         connection = Connection()
         db = connection['flickrDB']
         self.photoCollection = db.flickrCollection
-    
+        self.photoCollection.ensure_index( [("id", 1 )] )
+        self.photoCollection.ensure_index( [("loc", GEO2D )] )
+        self.photoCollection.ensure_index( [("place", 1 )] )
     # stores photos from a given location into the triple store
     # uses bounding boxes to get 
     # I wonder how many queries before I get limited? hmmm
@@ -70,7 +63,7 @@ class FlickrDataScraper():
                 description = photoDetails.find('photo').find('description').text #this might break
                 posted = photoDetails.find('photo').find('dates').attrib['posted']
                 ownerId = photoDetails.find('photo').find('owner').attrib['nsid']
-                ownerLocation = photoDetails.find('photo').find('owner').attrib['location']
+                ownerLocation = photoDetails.find('photo').find('owner').attrib['location'].encode('utf-8')
                 realname = photoDetails.find('photo').find('owner').attrib['realname']
                 username = photoDetails.find('photo').find('owner').attrib['username']
                 
@@ -81,13 +74,13 @@ class FlickrDataScraper():
                     "id": id,
                     "title": title,
                     "description":description,
-                    "lat": latitude,
-                    "lon": longitude,
+                    "loc": [float(latitude), float(longitude)],
                     "createdAt": posted,
                     "ownerID": ownerId,
                     "ownerLocation": ownerLocation,
                     "ownerName": realname,
                     "ownerUsername": username,
+                    "place": self.place
                 }
                 # this should take care of duplicate insertions
                 self.photoCollection.update(key, photoObj, True);
@@ -105,7 +98,7 @@ def main():
     print 'Beginning FlickrDataScraper'
     # when I run both functions at the same time, it works, but when I turn the first function off, the triples do not appear. How do I keep the triples in the triple store?
     #storePhotosFrom('san francisco')
-    x = FlickrDataScraper('san francisco')
+    x = FlickrDataScraper('los angeles')
     x.storePhotos()
     #storeUsers()
     
