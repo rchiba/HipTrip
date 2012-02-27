@@ -1,0 +1,14 @@
+<NotepadPlus>
+    <Session activeView="1">
+        <mainView activeIndex="0">
+            <File firstVisibleLine="44" xOffset="0" scrollWidth="1019" startPos="3905" endPos="3905" selMode="0" lang="Python" encoding="-1" filename="D:\Documents\School\Senior\CSCI 548 Information Integration on Web\HipTrip\src\collectionScripts\flickr.py" />
+        </mainView>
+        <subView activeIndex="4">
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1" startPos="0" endPos="0" selMode="0" lang="Python" encoding="-1" filename="D:\Documents\School\Senior\CSCI 548 Information Integration on Web\HipTrip\src\main.py" />
+            <File firstVisibleLine="94" xOffset="0" scrollWidth="7717" startPos="7229" endPos="7229" selMode="0" lang="Python" encoding="-1" filename="D:\Documents\School\Senior\CSCI 548 Information Integration on Web\HipTrip\src\heatmap.py" />
+            <File firstVisibleLine="27" xOffset="0" scrollWidth="7717" startPos="2291" endPos="2291" selMode="0" lang="HTML" encoding="-1" filename="D:\Documents\School\Senior\CSCI 548 Information Integration on Web\HipTrip\src\views\index.html" />
+            <File firstVisibleLine="173" xOffset="0" scrollWidth="7717" startPos="9995" endPos="10001" selMode="0" lang="Python" encoding="-1" filename="D:\Documents\School\Senior\CSCI 548 Information Integration on Web\HipTrip\src\collectionScripts\twitter.py" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="217" startPos="76" endPos="76" selMode="0" lang="Python" encoding="-1" filename="D:\Documents\School\Senior\CSCI 548 Information Integration on Web\HipTrip\src\config.py" />
+        </subView>
+    </Session>
+</NotepadPlus>

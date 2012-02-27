@@ -1,0 +1,8 @@
+show dbs
+use tweetsDB
+show collections
+db.tweetsCollection.drop()
+db.tweetUsersCollection.drop()
+show collections
+db.tweetUsersCollection.cound()
+db.tweetUsersCollection.count()

@@ -23,7 +23,7 @@
 				position:absolute;
 				top:60px;
                 right:30px;
-				width:300px;
+				width:310px;
                 background-color:#fff;
 				padding:15px;
                 opacity:.8;
@@ -37,13 +37,21 @@
                 background-color:#ccc;
             
             }
+            
+            #loader{
+                width:100px;
+                height:100px;
+                background-color:#ace400;
+                margin-left:auto;
+                margin-right:auto;
+                opacity:1;
+            }
 		</style>
 <!--<link rel="shortcut icon" type="image/png" href="http://www.patrick-wied.at/img/favicon.png" />-->
 
 
 </head>
 <body>
-
     <!-- Navbar -->
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
@@ -60,6 +68,11 @@
               <li class="active topBtn" id="sanFrancisco"><a href="#" >San Francisco</a></li>
               <li class="topBtn" id="greece"><a href="#" >Greece</a></li>
             </ul>
+            
+            <form class="navbar-search pull-left" action="">
+                <input type="text" class="search-query span2" placeholder="Search" style="height:27px; margin-left:50px;">
+              </form>
+            
             <ul class="nav pull-right">
               <li ><a data-toggle="modal" href="#aboutModal">About</a></li>
             </ul>
@@ -98,8 +111,10 @@
             
             <h4>Overlays</h4>
             <div class="btn-group" data-toggle="buttons-checkbox">
-                <button id="heatmapToggle" class="btn btn-primary active">Locals</button>
-                <button class="btn btn-primary">Tourists</button>
+                <button id="heatmapLocalsToggle" class="btn btn-primary">Locals</button>
+                <button id="heatmapTouristsToggle" class="btn btn-primary">Tourists</button>
+                <button id="heatmapFlickrToggle" class="btn btn-primary">Flickr</button>
+                <button id="heatmapTwitterToggle" class="btn btn-primary active">Twitter</button>
                 <button id="poiToggle" class="btn btn-primary">HipTips</button>
             </div>
             
@@ -113,6 +128,18 @@
           </div>
           <div class="modal-body">
             <p>When traveling, there are many existing services that provide reviews to help travelers decide where to dine, shop, or explore. However, distinguishing between places that tourists frequent and places that locals frequent is a challenge that continues to elude review services. In this paper, we present HipTrip, a system that utilizes geo-spatial data from various public sources to determine tourist “hotspots”, and finds highly rated points of interest away from these areas. This application utilizes Semantic Web technology, knowledge bases, and information extraction techniques to synthesize traveler behavior and points of interest in order to expose valuable travel suggestions.</p>
+          </div>
+          <div class="modal-footer">
+                
+          </div>
+        </div>
+        
+        <div class="modal hide fade" id = "loadingModal" style="display:none;">
+          <div class="modal-header">
+            <h3>Loading...</h3>
+          </div>
+          <div class="modal-body">
+            <p>Please wait while we load up some data... </p>
           </div>
           <div class="modal-footer">
                 
@@ -149,13 +176,20 @@
 <script src="/bootstrap/js/bootstrap-popover.js"></script>
 -->
 <script type="text/javascript">
-var map, layer, heatmap, markers, losAngeles, sanFrancisco, greece;
+var map, layer, heatmaps, markers, losAngeles, sanFrancisco, greece;
 
 
 
 function init(){
 
     console.log('init');
+    
+    // setup loading modal
+    $('#loadingModal').modal({
+        backdrop:false,
+        keyboard:false,
+        show:true});
+    
    // setup map
    map = new OpenLayers.Map( 'heatmapArea',{
         sphericalMercator: true,
@@ -165,9 +199,22 @@ function init(){
    
    // create our heatmap layer 
    layer = new OpenLayers.Layer.OSM();
-   heatmap = new OpenLayers.Layer.Heatmap( "Heatmap Layer", map, layer, {visible: true, radius:4}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
-   map.addLayers([layer, heatmap]);
    
+   // Adding heatmap to map
+   heatmaps = {};
+   heatmaps.twitterHeatmap = new OpenLayers.Layer.Heatmap( "Twitter Heatmap Layer", map, layer, {visible: true, radius:4}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
+   map.addLayers([layer, heatmaps.twitterHeatmap]);
+   
+   heatmaps.flickrHeatmap = new OpenLayers.Layer.Heatmap( "Flickr Heatmap Layer", map, layer, {visible: false, radius:4}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
+   map.addLayers([layer, heatmaps.flickrHeatmap]);
+   
+   heatmaps.localsHeatmap = new OpenLayers.Layer.Heatmap( "Locals Heatmap Layer", map, layer, {visible: false, radius:4}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
+   map.addLayers([layer, heatmaps.localsHeatmap]);
+   
+   heatmaps.touristsHeatmap = new OpenLayers.Layer.Heatmap( "Tourist Heatmap Layer", map, layer, {visible: false, radius:4}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
+   map.addLayers([layer, heatmaps.touristsHeatmap]);
+   
+   // defining location coordinates for cities
    var proj = new OpenLayers.Projection("EPSG:4326");
    center = new OpenLayers.LonLat(0, 0);
    losAngeles = new OpenLayers.LonLat(-118.2960, 34.02848);
@@ -215,38 +262,7 @@ function bind(){
         map.setCenter(location, 10, true, true);
         
         // Loading heatmap data
-        $.ajax({
-            url: "/"+location.urlString+"/heatmap",
-            cache: false,
-            success: function(res){
-                
-                var testData = JSON.parse(res);
-                var transformedTestData = { max: testData.max , data: [] },
-                data = testData.data,
-                datalen = data.length,
-                nudata = [];
-
-                // in order to use the OpenLayers Heatmap Layer we have to transform our data into 
-                // { max: <max>, data: [{lonlat: <OpenLayers.LonLat>, count: <count>},.]}
-
-                while(datalen--){
-                    nudata.push({
-                        lonlat: new OpenLayers.LonLat(data[datalen].lon, data[datalen].lat),
-                        count: data[datalen].count
-                    });
-                }
-
-                transformedTestData.data = nudata;
-
-              
-               heatmap.setDataSet(transformedTestData);
-
-            } // END success
-        }); // END heatmap ajax
-        
-        
-        
-        
+       
     }
     
 
@@ -261,8 +277,17 @@ function bind(){
         zoomTo($(this), greece);
     });
     
-    document.getElementById("heatmapToggle").onclick = function(){
-        heatmap.toggle();	
+    document.getElementById("heatmapLocalsToggle").onclick = function(){
+        heatmaps.localsHeatmap.toggle();	
+    };
+    document.getElementById("heatmapTouristsToggle").onclick = function(){
+        heatmaps.touristsHeatmap.toggle();	
+    };
+    document.getElementById("heatmapFlickrToggle").onclick = function(){
+        heatmaps.flickrHeatmap.toggle();	
+    };
+    document.getElementById("heatmapTwitterToggle").onclick = function(){
+        heatmaps.twitterHeatmap.toggle();	
     };
     document.getElementById("poiToggle").onclick = function(){
         markers.toggle();	
@@ -270,7 +295,7 @@ function bind(){
 
 }
 
-// Call server for heatmaps and other layer data
+// Call server for all heatmaps
 function ajax(){
     console.log('ajax()');
     // call for heatmap
@@ -298,10 +323,85 @@ function ajax(){
             transformedTestData.data = nudata;
 
           
-           heatmap.setDataSet(transformedTestData);
+           heatmaps.twitterHeatmap.setDataSet(transformedTestData);
 
+           $('#loadingModal').modal('hide');
+           
         } // END success
     }); // END ajax
+    
+    // make calls for other heatmaps
+    
+    
+    $.ajax({
+        url: "/sf/heatmap/flickr",
+        cache: false,
+        success: function(res){
+            var testData = JSON.parse(res);
+            var transformedTestData = { max: testData.max , data: [] },
+            data = testData.data,
+            datalen = data.length,
+            nudata = [];
+            // in order to use the OpenLayers Heatmap Layer we have to transform our data into 
+            // { max: <max>, data: [{lonlat: <OpenLayers.LonLat>, count: <count>},.]}
+            while(datalen--){
+                nudata.push({
+                    lonlat: new OpenLayers.LonLat(data[datalen].lon, data[datalen].lat),
+                    count: data[datalen].count
+                });
+            }
+            transformedTestData.data = nudata;
+            heatmaps.flickrHeatmap.setDataSet(transformedTestData);
+            $('#loadingModal').modal('hide');
+        } // END success
+    }); // END ajax
+    
+    $.ajax({
+        url: "/sf/heatmap/tourists",
+        cache: false,
+        success: function(res){
+            var testData = JSON.parse(res);
+            var transformedTestData = { max: testData.max , data: [] },
+            data = testData.data,
+            datalen = data.length,
+            nudata = [];
+            // in order to use the OpenLayers Heatmap Layer we have to transform our data into 
+            // { max: <max>, data: [{lonlat: <OpenLayers.LonLat>, count: <count>},.]}
+            while(datalen--){
+                nudata.push({
+                    lonlat: new OpenLayers.LonLat(data[datalen].lon, data[datalen].lat),
+                    count: data[datalen].count
+                });
+            }
+            transformedTestData.data = nudata;
+            heatmaps.touristsHeatmap.setDataSet(transformedTestData);
+            $('#loadingModal').modal('hide');
+        } // END success
+    }); // END ajax
+    
+    $.ajax({
+        url: "/sf/heatmap/locals",
+        cache: false,
+        success: function(res){
+            var testData = JSON.parse(res);
+            var transformedTestData = { max: testData.max , data: [] },
+            data = testData.data,
+            datalen = data.length,
+            nudata = [];
+            // in order to use the OpenLayers Heatmap Layer we have to transform our data into 
+            // { max: <max>, data: [{lonlat: <OpenLayers.LonLat>, count: <count>},.]}
+            while(datalen--){
+                nudata.push({
+                    lonlat: new OpenLayers.LonLat(data[datalen].lon, data[datalen].lat),
+                    count: data[datalen].count
+                });
+            }
+            transformedTestData.data = nudata;
+            heatmaps.localsHeatmap.setDataSet(transformedTestData);
+            $('#loadingModal').modal('hide');
+        } // END success
+    }); // END ajax
+    
 }
 
 // Creates the layer for the points of interest
@@ -331,6 +431,10 @@ function renderPOI(){
     var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
     var icon = new OpenLayers.Icon('http://localhost:8080/img/marker.png', size, offset);
     
+    function markerClick(e){
+        
+    }
+    
     // add each poi into the markers layer
     for (var key in poiDataset) {
         if (poiDataset.hasOwnProperty(key)) {
@@ -340,7 +444,8 @@ function renderPOI(){
                 map.getProjectionObject() // to Spherical Mercator Projection
             );
             var marker = new OpenLayers.Marker(lonLat);
-            marker.events.register('mousedown', marker, function(evt) { alert(this.icon.url); OpenLayers.Event.stop(evt); });
+            marker.data = poiDataset[key];
+            marker.events.register('mousedown', marker, markerClick);
             
             markers.addMarker(marker, icon.clone());
         }

@@ -24,11 +24,11 @@ from rdflib.term import Literal, URIRef
 from json import loads
 import oauth2
 import urllib2
-from pymongo import Connection
+from pymongo import Connection, GEO2D
 import sys
 
 class TwitterDataScraper():
-    def __init__(self, type):
+    def __init__(self):
     
         # twitter keys
         consumer_key="QwuBMbP2f9FQYoZBjF8fSA"
@@ -46,7 +46,7 @@ class TwitterDataScraper():
         self.maxTweetsPerQuery = 1500 # as defined by twitter
         self.maxRPP = 100 # as defined by twitter
         self.hitsLeftBeforeExit = 200 # calls to search api do not count to this limit
-        self.untilDate = '2012-02-22' #the day after the day we would like to collect
+        self.untilDate = '2012-02-26' #the day after the day we would like to collect
         self.calmTimeout = 30 # seconds to wait when rate limited
         self.oldestID = 0 # store oldestID so we can figure out next iteration's max_id (max_id is inclusive)
         self.geo = '' # a string used in search api for location
@@ -55,44 +55,18 @@ class TwitterDataScraper():
         self.locations = {"san francisco":'37.758,-122.442,7km',
                             "los angeles": "",
                             "greece": ""}
-                            
+        
+        self.userDict = {} # used as a buffer to hold 100 users before we send out query for user info
+        
         print "Twitter collection script running with %s queries left. Limit resets at %s." % (self.api.rate_limit_status()['remaining_hits'], time.ctime(self.api.rate_limit_status()['reset_time_in_seconds']))
         
-        if type=="sleepycat":
-            # sleepycat initialization
-            default_graph_uri = "http://example.com/rdfstore"
-            config_string = "rdfstore"
-            # Register plugins
-            plugin.register("sparql", Processor, "rdfextras.sparql.processor", "Processor")
-            plugin.register("sparql", Result, "rdfextras.sparql.query", "SPARQLQueryResult")
-            
-            store = plugin.get("Sleepycat", Store)("rdfstore")
-            rt = store.open(config_string, create=False)
-            if rt == NO_STORE:
-                store.open(config_string, create=True)
-            else:
-                assert rt == VALID_STORE, "The underlying store is corrupted" 
-            
-            self.graph = Graph(store, identifier=URIRef(default_graph_uri))
-            self.graph.bind("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-            self.graph.bind("dc", "http://purl.org/dc/elements/1.1/")
-            self.graph.bind("geo", "http://www.w3.org/2003/01/geo/wgs84_pos#")
-            self.graph.bind("foaf", "http://xmlns.com/foaf/0.1/")
-            self.graph.bind("custom", "http://localhost")
-            
-            self.namespaces = { "rdf": Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
-                           "dc":Namespace("http://purl.org/dc/elements/1.1/"),
-                           "geo":Namespace("http://www.w3.org/2003/01/geo/wgs84_pos#"),
-                           "foaf":Namespace("http://xmlns.com/foaf/0.1/"),
-                           "custom":Namespace("http://localhost/")}
-                           
-            self.twitter_url = "http://www.twitter.com/%s"
-        elif type=="mongo":
-            connection = Connection()
-            db = connection['tweetsDB']
-            self.collection = db.tweetsCollection
-        
-
+        connection = Connection()
+        db = connection['tweetsDB']
+        self.tweetsCollection = db.tweetsCollection
+        self.tweetsCollection.ensure_index( [("createdAt", 1 )] )
+        self.tweetsCollection.ensure_index( [("loc", GEO2D )] )
+        self.tweetUsersCollection = db.tweetUsersCollection
+        self.tweetUsersCollection.ensure_index( [("id", 1 )] )
     # wrapper function for recursive solution to finding tweets
     def storeTweetsFor(self, place):
         self.geo = self.locations[place]
@@ -104,8 +78,9 @@ class TwitterDataScraper():
     def recursivelyStoreTweets(self, geo, untilDate, maxID):
         self.oldestID = maxID
         try:
-            for tweet in Cursor(self.api.search, q='', until=self.untilDate, geocode=geo, rpp=self.maxRPP, max_id=maxID).items(self.maxTweetsPerQuery-1000): #-1000 since otherwise I get invalid query errors if a query returns less than this number of items
+            for tweet in Cursor(self.api.search, q='', until=self.untilDate, geocode=geo, rpp=self.maxRPP, max_id=maxID, with_twitter_user_id='true').items(self.maxTweetsPerQuery-1000): #-1000 since otherwise I get invalid query errors if a query returns less than this number of items
                 self.oldestID = tweet.id
+                #query api for details
                 #only store tweets with geocode
                 if tweet.geo is not None:
                     lat=float(tweet.geo['coordinates'][0])
@@ -114,37 +89,64 @@ class TwitterDataScraper():
                     id=str(tweet.id)
                     text=tweet.text
                     fromUser=tweet.from_user
-                    fromUserID=str(tweet.from_user_id)
+                    fromUserID=tweet.from_user_id
+                    if fromUserID not in self.userDict and self.tweetUsersCollection.find({'id':tweet.from_user_id}).count() == 0: # and not in users db already
+                        #print 'adding %s to user buffer, len is %s and count is %s' % (fromUserID, len(self.userDict), self.tweetUsersCollection.find({'id':fromUserID}).count())
+                        self.userDict[str(fromUserID)] = 'true'
                     
                     print '%s: %16s tweeted at %s: %s %s' % (id, fromUser, createdAt, lat, lon)
                    
-                    if self.type == "mongo": #store in mongo
-                        key = {"id": id}
-                        tweet = {
-                            "id":id,
-                            "createdAt": createdAt,
-                            "fromUser": fromUser,
-                            "lat": lat,
-                            "lon": lon, 
-                            "text": text, 
-                            "fromUserID": fromUserID
-                        }
-                        # this should take care of duplicate insertions
-                        self.collection.update(key, tweet, True);
+                    key = {"id": id}
+                    tweet = {
+                        "id":id,
+                        "createdAt": createdAt,
+                        "fromUser": fromUser,
+                        "loc": [lat,lon],
+                        "text": text, 
+                        "fromUserID": fromUserID
+                    }
+                    # this should take care of duplicate insertions
+                    self.tweetsCollection.update(key, tweet, True)
                     
-                    elif self.type == "sleepycat": #store in sleepycat
-                        self.graph.add((URIRef(self.twitter_url % id), self.namespaces["rdf"]["type"], Literal("tweet")))
-                        self.graph.add((URIRef(self.twitter_url % id), self.namespaces["dc"]["identifier"], Literal(id)))
-                        self.graph.add((URIRef(self.twitter_url % id), self.namespaces["dc"]["dateSubmitted"], Literal(createdAt)))
-                        self.graph.add((URIRef(self.twitter_url % id), self.namespaces["dc"]["creator"], Literal(fromUserID)))
-                        self.graph.add((URIRef(self.twitter_url % id), self.namespaces["geo"]["lat"], Literal(lat)))
-                        self.graph.add((URIRef(self.twitter_url % id), self.namespaces["geo"]["lon"], Literal(lon)))
-                        self.graph.add((URIRef(self.twitter_url % id), self.namespaces["dc"]["description"], Literal(text)))
-                        
-                    
-                #else: this print statement shows how many people are returned in total, not just geo tagged folks
-                #   print '%s: %s tweeted at %s' % (tweet.id, tweet.from_user, tweet.created_at)
-
+                    # if we've reached 100 usernames, make appropriate query
+                    if len(self.userDict) == 99:
+                        #print '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!10 users buffered, time to store their info'
+                        userQueryArr = []
+                        for username in self.userDict.keys():
+                            # make a query string of users
+                            userQueryArr.append(username)
+                        # get all the userInfo and store
+                        #print userQueryArr
+                        self.userDict = {} # empty out the buffer for next iters
+                        for userInfo in self.api.lookup_users(user_ids=userQueryArr):
+                            screenname = userInfo.screen_name.encode('utf-8')
+                            name = userInfo.name.encode('utf-8')
+                            location = userInfo.location
+                            profileImgUrl = userInfo.profile_image_url
+                            createdAt = userInfo.created_at
+                            id = userInfo.id
+                            followersCount = userInfo.followers_count
+                            geoEnabled = userInfo.geo_enabled
+                            tweetCount = userInfo.statuses_count
+                            description = userInfo.description
+                            #print 'id: %s and is of type %s' % (id, type(id))
+                            if description is not None:
+                                description = description.encode('utf-8')
+                            userKey = {"id": id}
+                            userValue = {
+                                "id": id,
+                                "location": location,
+                                "profileImgUrl": profileImgUrl,
+                                "createdAt": createdAt,
+                                "followersCount": followersCount, 
+                                "geoEnabled": geoEnabled,
+                                "tweetCount": tweetCount,
+                                "description": description
+                            }
+                            
+                            self.tweetUsersCollection.update(userKey, userValue, True)
+                            
+                            #print 'user info successfully stored'
                 
             # if we are almost out of queries, stop, else continue
             if self.api.rate_limit_status()['remaining_hits'] > self.hitsLeftBeforeExit and (self.counter != 0):
@@ -187,27 +189,13 @@ class TwitterDataScraper():
             print row
          
     def printTweetStats(self):
-    
-        start = time.clock()
-    
-        # Query for a specific subject
-        qres = self.graph.query("""
-            SELECT DISTINCT ?x
-            WHERE {
-                ?x rdf:type "tweet"
-            }""", initNs=self.namespaces)
-    
-        tweetCount = len(qres.result)
-    
-        elapsed = (time.clock() - start)
-        print "Tuples in graph: %s" % len(self.graph) 
-        print "Tweets in graph: %s" % tweetCount
-        print "Time Elapsed: %s" % elapsed
+        print "Records in Tweets Collection: %s" % self.tweetsCollection.count()
+        print "Records in Tweet Users Collection: %s" % self.tweetUsersCollection.count()
              
 def main():
 
     if(len(sys.argv) == 1):
-        print "Examples: 'twitter.py sleepycat sf' 'twitter.py mongo la' 'twitter.py sleepycat stats'"
+        print "Examples: 'twitter.py sf twitter.py la, twitter.py stats'"
         return
 
     
@@ -215,22 +203,14 @@ def main():
     type  = ''
     place = ''
     
-    if (len(sys.argv) > 1):
-        if( sys.argv[1] == 'sleepycat' ):
-            type = 'sleepycat'
-        elif(  sys.argv[1] == 'mongo' ):
-            type = 'mongo'
-        else:
-            print 'invalid db type, use sleepycat or mongo'
-            return
             
-    if (len(sys.argv) > 2):
-        if( sys.argv[2] == 'sf' ):
+    if (len(sys.argv) > 1):
+        if( sys.argv[1] == 'sf' ):
             place = 'san francisco'
-        elif(  sys.argv[2] == 'la' ):
+        elif(  sys.argv[1] == 'la' ):
             place = 'los angeles'
-        elif( sys.argv[2] == 'stats' ):
-            x = TwitterDataScraper(type)
+        elif( sys.argv[1] == 'stats' ):
+            x = TwitterDataScraper()
             x.printTweetStats()
             return
         else:
@@ -238,7 +218,7 @@ def main():
             return
     
     
-    x = TwitterDataScraper(type)
+    x = TwitterDataScraper()
     x.storeTweetsFor(place)
     
         
