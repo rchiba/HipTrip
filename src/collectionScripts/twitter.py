@@ -46,7 +46,7 @@ class TwitterDataScraper():
         self.maxTweetsPerQuery = 1500 # as defined by twitter
         self.maxRPP = 100 # as defined by twitter
         self.hitsLeftBeforeExit = 200 # calls to search api do not count to this limit
-        self.untilDate = '2012-02-26' #the day after the day we would like to collect
+        self.untilDate = '2012-03-13' #the day after the day we would like to collect
         self.calmTimeout = 30 # seconds to wait when rate limited
         self.oldestID = 0 # store oldestID so we can figure out next iteration's max_id (max_id is inclusive)
         self.geo = '' # a string used in search api for location
@@ -74,7 +74,7 @@ class TwitterDataScraper():
         self.geo = self.locations[place]
         self.place = place
         #ryo - last id was 169843803547639808
-        self.recursivelyStoreTweets(self.geo, self.untilDate, '172054876644315136')
+        self.recursivelyStoreTweets(self.geo, self.untilDate, '')
         
         
     def recursivelyStoreTweets(self, geo, untilDate, maxID):

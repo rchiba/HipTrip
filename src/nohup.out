@@ -1,0 +1,596 @@
+/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/__init__.py:4: UserWarning: Module webapp2 was already imported from /home/ryo/Projects/HipTrip/src/webapp2.pyc, but /usr/local/lib/python2.7/dist-packages/webapp2-2.5.1-py2.7.egg is being added to sys.path
+  import pkg_resources
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+serving on http://192.168.1.87:1234
+HeatmapHandler(self, sf, twitter)
+place is san francisco
+HeatmapHandler(self, sf, flickr)
+HeatmapHandler(self, sf, tourists)
+HeatmapHandler(self, sf, locals)
+getFlickrHeatmap finished in 2.37 seconds
+getTwitterHeatmap finished in 20.74 seconds
+HeatmapHandler(self, la, twitter)
+place is los angeles
+HeatmapHandler(self, la, flickr)
+HeatmapHandler(self, la, tourists)
+HeatmapHandler(self, la, locals)
+getFlickrHeatmap finished in 2.89 seconds
+getTwitterHeatmap finished in 3.43 seconds
+getLocalsHeatmap finished in 91.06 seconds
+getTouristsHeatmap finished in 92.47 seconds
+getLocalsHeatmap finished in 15.47 seconds
+getTouristsHeatmap finished in 16.43 seconds
+HeatmapHandler(self, sf, twitter)
+place is san francisco
+HeatmapHandler(self, sf, flickr)
+HeatmapHandler(self, sf, tourists)
+HeatmapHandler(self, sf, locals)
+getFlickrHeatmap finished in 2.67 seconds
+getTwitterHeatmap finished in 20.54 seconds
+getTouristsHeatmap finished in 85.86 seconds
+getLocalsHeatmap finished in 85.85 seconds
+HeatmapHandler(self, sf, twitter)
+place is san francisco
+HeatmapHandler(self, sf, flickr)
+HeatmapHandler(self, sf, tourists)
+HeatmapHandler(self, sf, locals)
+getFlickrHeatmap finished in 2.28 seconds
+getTwitterHeatmap finished in 20.73 seconds
+----------------------------------------
+Exception happened during processing of request from ('173.85.203.113', 61562)
+----------------------------------------
+getLocalsHeatmap finished in 84.92 seconds
+getTouristsHeatmap finished in 86.01 seconds
+----------------------------------------
+Exception happened during processing of request from ('173.85.203.113', 61565)
+----------------------------------------
+----------------------------------------
+Exception happened during processing of request from ('173.85.203.113', 61564)
+----------------------------------------
+HeatmapHandler(self, sf, twitter)
+place is san francisco
+HeatmapHandler(self, sf, flickr)
+HeatmapHandler(self, sf, tourists)
+HeatmapHandler(self, sf, locals)
+getFlickrHeatmap finished in 2.49 seconds
+getTwitterHeatmap finished in 20.69 seconds
+getLocalsHeatmap finished in 85.71 seconds
+getTouristsHeatmap finished in 86.63 seconds
+HeatmapHandler(self, sf, twitter)
+place is san francisco
+HeatmapHandler(self, sf, flickr)
+HeatmapHandler(self, sf, tourists)
+HeatmapHandler(self, sf, locals)
+getFlickrHeatmap finished in 1.95 seconds
+getTwitterHeatmap finished in 20.68 seconds
+getLocalsHeatmap finished in 84.81 seconds
+getTouristsHeatmap finished in 85.84 seconds
+----------------------------------------
+Exception happened during processing of request from ('173.85.203.113', 60460)
+----------------------------------------
+----------------------------------------
+Exception happened during processing of request from ('173.85.203.113', 60459)
+----------------------------------------
+----------------------------------------
+Exception happened during processing of request from ('173.85.203.113', 60458)
+----------------------------------------
+HeatmapHandler(self, sf, flickr)
+getFlickrHeatmap finished in 0.6 seconds
+HeatmapHandler(self, sf, locals)
+getLocalsHeatmap finished in 25.84 seconds
+HeatmapHandler(self, sf, twitter)
+place is san francisco
+getTwitterHeatmap finished in 9.89 seconds
+HeatmapHandler(self, sf, tourists)
+getTouristsHeatmap finished in 27.07 seconds
+HeatmapHandler(self, sf, twitter)
+place is san francisco
+HeatmapHandler(self, sf, flickr)
+HeatmapHandler(self, sf, tourists)
+HeatmapHandler(self, sf, locals)
+getFlickrHeatmap finished in 2.89 seconds
+getTwitterHeatmap finished in 20.5 seconds
+getLocalsHeatmap finished in 85.43 seconds
+getTouristsHeatmap finished in 86.41 seconds
+HeatmapHandler(self, la, twitter)
+place is los angeles
+HeatmapHandler(self, la, flickr)
+HeatmapHandler(self, la, locals)
+HeatmapHandler(self, la, tourists)
+getTwitterHeatmap finished in 3.44 seconds
+getFlickrHeatmap finished in 3.49 seconds
+getLocalsHeatmap finished in 11.94 seconds
+getTouristsHeatmap finished in 11.52 seconds
+HeatmapHandler(self, sf, tourists)
+HeatmapHandler(self, sf, flickr)
+ HeatmapHandler(self, sf, locals)
+HeatmapHandleTraceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/__init__.py:4: UserWarning: Module webapp2 was already imported from /home/ryo/Projects/HipTrip/src/webapp2.pyc, but /usr/local/lib/python2.7/dist-packages/webapp2-2.5.1-py2.7.egg is being added to sys.path
+  import pkg_resources
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+serving on http://192.168.1.87:1234
+HeatmapHandler(self, sf, twitter)
+place is san francisco
+HeatmapHandler(self, sf, tourists)
+HeatmapHandler(self, sf, flickr)
+HeatmapHandler(self, sf, locals)
+getFlickrHeatmap finished in 3.32 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 49450)
+----------------------------------------
+getTwitterHeatmap finished in 29.89 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 49448)
+----------------------------------------
+getLocalsHeatmap finished in 86.57 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 49452)
+----------------------------------------
+getTouristsHeatmap finished in 87.21 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 49451)
+----------------------------------------
+HeatmapHandler(self, sf, flickr)
+ HeatmapHandler(self, sf, twitter)
+place is san francisco
+HeatmapHandler(self, sf, tourists)
+ HeatmapHandler(self, sf, locals)
+getFlickrHeatmap finished in 1.87 seconds
+HeatmapHandler(self, sf, twitter)
+place is san franciscoHeatmapHandler(self, sf, flickr)HeatmapHandler(self, sf, tourists)
+
+
+HeatmapHandler(self, sf, locals)
+getFlickrHeatmap finished in 3.81 seconds
+HeatmapHandler(self, sf, flickr)
+HeatmapHandler(self, sf, twitter)
+place is san francisco
+HeatmapHandler(self, sf, tourists)
+HeatmapHandler(self, sf, locals)
+getFlickrHeatmap finished in 8.58 seconds
+getTwitterHeatmap finished in 36.23 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 51231)
+----------------------------------------
+getTwitterHeatmap finished in 45.48 seconds
+getTwitterHeatmap finished in 44.55 seconds
+HeatmapHandler(self, sf, locals)
+HeatmapHandler(self, sf, twitter)
+ HeatmapHandler(self, sf, flickr)place is san francisco
+
+HeatmapHandler(self, sf, tourists)
+getFlickrHeatmap finished in 2.27 seconds
+getTwitterHeatmap finished in 23.35 seconds
+HeatmapHandler(self, sf, twitter)
+place is san francisco
+HeatmapHandler(self, sf, locals)
+HeatmapHandler(self, sf, flickr)
+ HeatmapHandler(self, sf, tourists)
+getFlickrHeatmap finished in 2.75 seconds
+getTwitterHeatmap finished in 24.46 seconds
+getTouristsHeatmap finished in 361.35 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 51233)
+----------------------------------------
+getLocalsHeatmap finished in 362.1 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 51234)
+----------------------------------------
+getLocalsHeatmap finished in 347.16 seconds
+getTouristsHeatmap finished in 351.48 seconds
+getLocalsHeatmap finished in 358.31 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 51254)
+----------------------------------------
+getTouristsHeatmap finished in 360.18 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 51253)
+----------------------------------------
+getTouristsHeatmap finished in 289.78 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 51278)
+----------------------------------------
+getLocalsHeatmap finished in 290.56 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 51279)
+----------------------------------------
+getLocalsHeatmap finished in 131.76 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 51406)
+----------------------------------------
+getTouristsHeatmap finished in 132.63 seconds
+----------------------------------------
+Exception happened during processing of request from ('108.94.138.121', 51405)
+---Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.7/dist-packages/Paste-1.7.5.1-py2.7.egg/paste/httpserver.py", line 1068, in process_request_in_thread
+    self.finish_request(request, client_address)
+  File "/usr/lib/python2.7/SocketServer.py", line 323, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python2.7/SocketServer.py", line 641, in __init__
+    self.finish()
+  File "/usr/lib/python2.7/SocketServer.py", line 694, in finish
+    self.wfile.flush()
+  File "/usr/lib/python2.7/socket.py", line 303, in flush
+    self._sock.sendall(view[write_offset:write_offset+buffer_size])
+error: [Errno 32] Broken pipe

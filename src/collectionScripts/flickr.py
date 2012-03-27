@@ -98,7 +98,7 @@ def main():
     print 'Beginning FlickrDataScraper'
     # when I run both functions at the same time, it works, but when I turn the first function off, the triples do not appear. How do I keep the triples in the triple store?
     #storePhotosFrom('san francisco')
-    x = FlickrDataScraper('los angeles')
+    x = FlickrDataScraper('san francisco')
     x.storePhotos()
     #storeUsers()
     
