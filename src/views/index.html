@@ -208,10 +208,10 @@ function init(){
    heatmaps.flickrHeatmap = new OpenLayers.Layer.Heatmap( "Flickr Heatmap Layer", map, layer, {visible: false, radius:4}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
    map.addLayers([layer, heatmaps.flickrHeatmap]);
    
-   heatmaps.localsHeatmap = new OpenLayers.Layer.Heatmap( "Locals Heatmap Layer", map, layer, {visible: false, radius:4}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
+   heatmaps.localsHeatmap = new OpenLayers.Layer.Heatmap( "Locals Heatmap Layer", map, layer, {visible: false, radius:4, gradient:{.45:"rgb(46,0,40)", 1:"rgb(239,0,229)"}}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
    map.addLayers([layer, heatmaps.localsHeatmap]);
    
-   heatmaps.touristsHeatmap = new OpenLayers.Layer.Heatmap( "Tourist Heatmap Layer", map, layer, {visible: false, radius:4}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
+   heatmaps.touristsHeatmap = new OpenLayers.Layer.Heatmap( "Tourist Heatmap Layer", map, layer, {visible: false, radius:4,  gradient:{.45:"rgb(0,45,45)", 1:"rgb(0,231,239)"}}, {isBaseLayer: false, opacity: .5, projection: new OpenLayers.Projection("EPSG:4326")});
    map.addLayers([layer, heatmaps.touristsHeatmap]);
    
    // defining location coordinates for cities
@@ -427,34 +427,50 @@ function renderPOI(){
             'hipness': '85'
         }
     }
-
-    markers = new OpenLayers.Layer.Markers( "Markers" );
-    map.addLayer(markers);
-    
-    // Custom marker
-    var size = new OpenLayers.Size(21,25);
-    var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-    var icon = new OpenLayers.Icon('http://localhost:8080/img/marker.png', size, offset);
-    
-    function markerClick(e){
-        
-    }
-    
-    // add each poi into the markers layer
-    for (var key in poiDataset) {
-        if (poiDataset.hasOwnProperty(key)) {
-            var poi = poiDataset[key];
-            var lonLat = new OpenLayers.LonLat( poi.lat , poi.lon ).transform(
-                new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-                map.getProjectionObject() // to Spherical Mercator Projection
-            );
-            var marker = new OpenLayers.Marker(lonLat);
-            marker.data = poiDataset[key];
-            marker.events.register('mousedown', marker, markerClick);
+    /*
+    $.ajax({
+        url: "/"+place+"/clusters/flickr",
+        cache: false,
+        success: function(res){
+            //console.log('/sf/heatmap/locals'+res);
+            var data = JSON.parse(res);
+            // add each poi into the markers layer
             
-            markers.addMarker(marker, icon.clone());
-        }
-    }
+            markers = new OpenLayers.Layer.Markers( "Markers" );
+            map.addLayer(markers);
+            
+            // Custom marker
+            var size = new OpenLayers.Size(21,25);
+            var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+            var icon = new OpenLayers.Icon('http://localhost:8080/img/marker.png', size, offset);
+            
+            function markerClick(e){
+                
+            }
+            
+            
+            for (var x = 0; x < data.length; x++) {
+                var poi = data[x];
+                var lonLat = new OpenLayers.LonLat( poi.lat , poi.lon ).transform(
+                    new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                    map.getProjectionObject() // to Spherical Mercator Projection
+                );
+                var marker = new OpenLayers.Marker(lonLat);
+                marker.data = poiDataset[key];
+                marker.events.register('mousedown', marker, markerClick);
+                
+                markers.addMarker(marker, icon.clone());
+            }
+            
+            
+            $('#loadingModal').modal('hide');
+        } // END success
+    }); // END ajax
+    */
+    
+    
+    
+    
     
 }
 

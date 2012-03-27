@@ -1,5 +1,6 @@
 import webapp2
-import heatmap
+import heatmapHandler
+import clusterHandler
 import root
 
 import os
@@ -19,7 +20,8 @@ settings.configure(DEBUG=True, TEMPLATE_DEBUG=True,
 
 web_app = webapp2.WSGIApplication([
     webapp2.Route(r'/', handler='root.RootHandler', name='root'),
-    webapp2.Route(r'/<place>/heatmap/<type>', handler='heatmap.HeatmapHandler' , name='heatmap'),
+    webapp2.Route(r'/<place>/heatmap/<type>', handler='heatmapHandler.HeatmapHandler' , name='heatmap'),
+    #webapp2.Route(r'/<place>/clusters/<type>', handler='clusterHandler.ClustersHandler' , name='clusters'),
 ], debug=True)
 
 # serving static files in webapp2: http://stackoverflow.com/questions/8470733/how-can-i-handle-static-files-with-python-webapp2-in-heroku
