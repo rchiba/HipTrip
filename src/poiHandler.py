@@ -28,10 +28,13 @@ class poiHandler(webapp2.RequestHandler):
         db = connection['yelpDB']
         self.yelp = db.yelpCollection
         
+        self.mostLinkedCount = 20 # how many most linked pois to return?
+        self.nearbyTweetCount = 10 # how many nearby tweets to return?
+        self.nearbyFlickrCount = 10 # how many nearby photos to return?
+        
     # returns the most linked points of interest in the given place
     def getMostLinked(self, place = 'san francisco'):
-        returnedValues = 15 #return only this many number of values
-    
+        
         start = time.clock()
 
         resData = "["
@@ -45,23 +48,86 @@ class poiHandler(webapp2.RequestHandler):
         pois = sorted(pois.iteritems(), key=lambda (k,v): (v,k), reverse=True)
         count = 0 
         for key, value in pois:
-            print value
+            #print value
             #generate json from sorted dict
             yelpEntry = self.yelp.find_one({"id":key})
             yelpJson = json.dumps(yelpEntry, default=json_util.default)
             resData = '%s %s,' % (resData, yelpJson)    
             count = count + 1
-            if count > returnedValues:
+            if count > self.mostLinkedCount:
                 break
         if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
         
-        resData = resData+"]"
+        resData = "%s ]" % resData
         
         elapsed = (time.clock() - start)   
         print "getMostLinked finished in %s seconds" % elapsed
         self.response.write(resData)
         
- 
+    # Returns a json with details to be displayed about a given POI
+    # Called whenever a marker is clicked
+    # place - the yelpid
+    # ex: /yelpid/poi/details
+    # I'll find...
+    # - linked tweets
+    # - linked flickr photos
+    # - nearby tweets
+    # - nearby flickr photos
+    # - hipness score
+    # - yelp review snippets
+    def getDetails(self, place):
+        start = time.clock()
+        resData = "[" # we're returning an array of objects 
+        # (each object being the raw entity mongo entry in json format)
+        
+        # - linked tweets and linked flickr photos
+        linkedData = self.linked.find({"yelpID":place})
+        for item in linkedData:
+            if item.get("tweetID") is not None:
+                tweetEntry = self.tweets.find_one({"id":item["tweetID"]})
+                if tweetEntry is not None:
+                    tweetEntry["type"] = "linkedTweet"
+                    tweetEntry = json.dumps(tweetEntry, default=json_util.default)
+                    resData = '%s %s,' % (resData, tweetEntry)   
+            elif item.get("flickrID") is not None:
+                flickrEntry = self.flickr.find_one({"id":item["flickrID"]})
+                if flickrEntry is not None:
+                    flickrEntry["type"] = "linkedFlickr"
+                    flickrEntry = json.dumps(flickrEntry, default=json_util.default)
+                    resData = '%s %s,' % (resData, flickrEntry)   
+        
+        # - nearby tweets and nearby flickr photos
+        yelpEntry = self.yelp.find_one({"id":place})
+        loc = yelpEntry["loc"]
+        nearTweets = self.tweets.find({"loc":{"$near":loc}}).limit(self.nearbyTweetCount)
+        for tweet in nearTweets:
+            tweet["type"] = "nearbyTweet"
+            tweet = json.dumps(tweet, default=json_util.default)
+            resData = '%s %s,' % (resData, tweet)  
+        nearFlickr = self.tweets.find({"loc":{"$near":loc}}).limit(self.nearbyFlickrCount)
+        for flickr in nearFlickr:
+            flickr["type"] = "nearbyFlickr"
+            flickr = json.dumps(flickr, default=json_util.default)
+            resData = '%s %s,' % (resData, flickr)  
+
+        # - yelp review snippets
+        yelpEntries = self.yelp.find({"id":place})
+        for yelp in yelpEntries:
+            yelp["type"] = "yelpEntry"
+            yelp = json.dumps(yelp, default=json_util.default)
+            resData = '%s %s,' % (resData, yelp)  
+        
+        # - hipness score : TODO
+        
+        
+        if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
+        elapsed = (time.clock() - start)   
+        print "getDetails() finished in %s seconds" % elapsed
+        
+        
+        resData = "%s ]" % resData
+        self.response.write(resData)
+    
         
     def get(self, place, type):
         # return a list of JSON coordinates based on logic located here
@@ -79,3 +145,5 @@ class poiHandler(webapp2.RequestHandler):
         
         if type == "mostlinked":
             self.getMostLinked(place)
+        elif type == "details":
+            self.getDetails(place)
