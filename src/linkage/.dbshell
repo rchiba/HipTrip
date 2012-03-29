@@ -1,0 +1,10 @@
+use tweetsDB
+show collections
+db.tweetsCollection.find({id:219267850})
+db.tweetsCollection.find({id:'232809903'})
+db.tweetsCollection.find({id:232809903})
+db.tweetsCollection.find({'id':232809903})
+db.tweetsCollection.find()
+db.tweetsCollection.find({"id":17771844})
+db.tweetUsersCollection.find({"id":17771844})
+db.tweetUsersCollection.find({"id":108331009})

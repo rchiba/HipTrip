@@ -1,19 +1,6 @@
 from config import config
 
-import rdflib
 from xml.etree import ElementTree
-
-from rdflib.graph import Graph
-from rdflib import Literal, BNode, Namespace
-from rdflib import RDF
-from rdflib.graph import ConjunctiveGraph as Graph
-from rdflib import plugin
-from rdflib.store import Store, NO_STORE, VALID_STORE
-from rdflib.query import Processor, Result
-from rdflib.namespace import Namespace
-from rdflib.term import Literal
-from rdflib.term import URIRef
-from tempfile import mkdtemp
 import time
 from xml.dom.minidom import parseString
 import webapp2

@@ -1,5 +1,6 @@
 import webapp2
 import heatmapHandler
+import poiHandler
 import clusterHandler
 import root
 
@@ -20,6 +21,9 @@ settings.configure(DEBUG=True, TEMPLATE_DEBUG=True,
 
 web_app = webapp2.WSGIApplication([
     webapp2.Route(r'/', handler='root.RootHandler', name='root'),
+    # ex: /sf/poi/mostlinked
+    webapp2.Route(r'/<place>/poi/<type>', handler='poiHandler.poiHandler' , name='poi'),
+    # ex: /sf/heatmap/locals
     webapp2.Route(r'/<place>/heatmap/<type>', handler='heatmapHandler.HeatmapHandler' , name='heatmap'),
     #webapp2.Route(r'/<place>/clusters/<type>', handler='clusterHandler.ClustersHandler' , name='clusters'),
 ], debug=True)
@@ -36,7 +40,8 @@ app = Cascade([static_app, web_app])
 
 def main():
     from paste import httpserver
-    httpserver.serve(app, host='192.168.1.87', port='1234')
+    #httpserver.serve(app, host='192.168.1.87', port='1234')
+    httpserver.serve(app, host='localhost', port='1234')
 
 if __name__ == '__main__':
     main()
