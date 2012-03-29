@@ -34,6 +34,23 @@ class poiHandler(webapp2.RequestHandler):
         self.nearbyTweetCount = 100 # how many nearby tweets to return?
         self.nearbyFlickrCount = 20 # how many nearby photos to return?
         
+        
+    # used in calculating hipness score
+    def haversine(self, lon1, lat1, lon2, lat2):
+        """
+        Calculate the great circle distance between two points 
+        on the earth (specified in decimal degrees)
+        """
+        # convert decimal degrees to radians 
+        lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+        # haversine formula 
+        dlon = lon2 - lon1 
+        dlat = lat2 - lat1 
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a)) 
+        km = 6367 * c
+        return km 
+        
     # returns the most linked points of interest in the given place
     def getMostLinked(self, place = 'san francisco'):
         
@@ -68,21 +85,7 @@ class poiHandler(webapp2.RequestHandler):
         
         
     
-    # used in calculating hipness score
-    def haversine(self, lon1, lat1, lon2, lat2):
-        """
-        Calculate the great circle distance between two points 
-        on the earth (specified in decimal degrees)
-        """
-        # convert decimal degrees to radians 
-        lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-        # haversine formula 
-        dlon = lon2 - lon1 
-        dlat = lat2 - lat1 
-        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-        c = 2 * asin(sqrt(a)) 
-        km = 6367 * c
-        return km 
+    
         
         
     # Returns a json with details to be displayed about a given POI
@@ -174,9 +177,9 @@ class poiHandler(webapp2.RequestHandler):
         nearTweetUserLocCount = len(nearTweetUserLocations)
         for tweetLoc in nearTweetUserLocations:
             dist = self.haversine(tweetLoc[0],tweetLoc[1],loc[0],loc[1])
-            if dist < 30: # locals
+            if dist < config['localDistance']: # locals
                 sum = sum + 1.0
-            elif dist < 550: # semi - locals
+            elif dist < config['semiLocalDistance']: # semi - locals
                 sum = sum + .5
             else: # tourists
                 sum = sum + 0

@@ -7,7 +7,8 @@ import webapp2
 from pymongo import Connection    
 import re
 
-        
+from math import radians, cos, sin, asin, sqrt
+      
 class HeatmapHandler(webapp2.RequestHandler):
 
     def __init__(self, request=None, response=None):
@@ -16,15 +17,36 @@ class HeatmapHandler(webapp2.RequestHandler):
         connection = Connection()
         db = connection['tweetsDB']
         self.tweets = db.tweetsCollection
-        #print '%s entries in tweetsCollection' % self.tweets.count()
+
         self.tweetUsers = db.tweetUsersCollection
-        #print '%s entries in tweetUsersCollection' % self.tweetUsers.count()
-        
+        self.poiHeatmapCount = 100 # ? how many tweets to inspect for the heatmap
         
         db = connection['flickrDB']
         self.flickr = db.flickrCollection
-        #print '%s entries in flickrCollection' % self.flickr.count()
-                           
+        
+        db = connection['linkedDB']
+        self.linked = db.linkedCollection
+        
+        db = connection['yelpDB']
+        self.yelp = db.yelpCollection
+        
+          
+    # used in calculating hipness score
+    def haversine(self, lon1, lat1, lon2, lat2):
+        """
+        Calculate the great circle distance between two points 
+        on the earth (specified in decimal degrees)
+        """
+        # convert decimal degrees to radians 
+        lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+        # haversine formula 
+        dlon = lon2 - lon1 
+        dlat = lat2 - lat1 
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a)) 
+        km = 6367 * c
+        return km 
+          
     def getFlickrHeatmap(self, place = 'san francisco'):
         start = time.clock()
 
@@ -56,6 +78,7 @@ class HeatmapHandler(webapp2.RequestHandler):
         print "getTwitterHeatmap finished in %s seconds" % elapsed
         self.response.write(resData)
         
+    #deprecated
     def getLocalsHeatmap(self, place = 'san francisco'):
         start = time.clock()
         resData = "{ \"max\":1, \"data\":["
@@ -83,7 +106,44 @@ class HeatmapHandler(webapp2.RequestHandler):
         elapsed = (time.clock() - start)
         print "getLocalsHeatmap finished in %s seconds" % elapsed
         self.response.write(resData)
-        
+    
+    # returns the heatmap for a given poi
+    # which consists of nearby tweet geo's
+    # weighted by their user's distance from poi
+    # ex: /yelpID/heatmap/poi
+    def getPoiHeatmap(self, place):
+        start = time.clock()
+        resData = "{ \"max\":3, \"data\":["
+        yelpEntry = self.yelp.find_one({"id":place})
+        loc = yelpEntry["loc"]
+
+        nearTweets = self.tweets.find({"loc":{"$near":loc}}).limit(self.poiHeatmapCount)
+        nearTweetUserLocations = []
+        for tweet in nearTweets:
+            tweetUserID = tweet["fromUserID"]
+            # get tweet user's data
+            tweetUser = self.tweetUsers.find_one({"id":tweetUserID})
+            if tweetUser is not None:
+                if tweetUser.get("loc") is not None: 
+                    # we're only heatmapping tweets with a user with a location
+                    userLat = tweet['loc'][0] # we use the tweet's geo
+                    userLon = tweet['loc'][1]
+                    dist = self.haversine(userLat,userLon,loc[0],loc[1])
+                    if dist < config['localDistance']: # locals
+                        score = 3
+                    elif dist < config['semiLocalDistance']: # semi - locals
+                        score = 2
+                    else: # tourists
+                        score = 1
+                    resData = '%s {"lat": %s, "lon": %s, "count": %s},' % (resData, userLat, userLon, score)
+    
+        if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
+        resData = resData+"]}"
+        elapsed = (time.clock() - start)
+        print "getPoiHeatmap finished in %s seconds" % elapsed
+        self.response.write(resData)
+    
+    # deprecated
     def getTouristsHeatmap(self, place = 'san francisco'):
         start = time.clock()
         resData = "{ \"max\":1, \"data\":["
@@ -124,6 +184,8 @@ class HeatmapHandler(webapp2.RequestHandler):
             place = 'los angeles'
         elif place == 'greece':
             place = 'greece'
+        else: # place is a poi
+            place = place
         
         if type == "flickr":
             self.getFlickrHeatmap(place)
@@ -133,3 +195,5 @@ class HeatmapHandler(webapp2.RequestHandler):
             self.getLocalsHeatmap(place)
         elif type == "tourists":
             self.getTouristsHeatmap(place)
+        elif type == "poi":
+            self.getPoiHeatmap(place)
