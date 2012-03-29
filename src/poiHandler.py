@@ -6,7 +6,9 @@ import webapp2
 from pymongo import Connection, json_util
 import json
 import re
+import random
 
+from math import radians, cos, sin, asin, sqrt
      
 class poiHandler(webapp2.RequestHandler):
 
@@ -29,8 +31,8 @@ class poiHandler(webapp2.RequestHandler):
         self.yelp = db.yelpCollection
         
         self.mostLinkedCount = 20 # how many most linked pois to return?
-        self.nearbyTweetCount = 10 # how many nearby tweets to return?
-        self.nearbyFlickrCount = 10 # how many nearby photos to return?
+        self.nearbyTweetCount = 100 # how many nearby tweets to return?
+        self.nearbyFlickrCount = 20 # how many nearby photos to return?
         
     # returns the most linked points of interest in the given place
     def getMostLinked(self, place = 'san francisco'):
@@ -64,6 +66,25 @@ class poiHandler(webapp2.RequestHandler):
         print "getMostLinked finished in %s seconds" % elapsed
         self.response.write(resData)
         
+        
+    
+    # used in calculating hipness score
+    def haversine(self, lon1, lat1, lon2, lat2):
+        """
+        Calculate the great circle distance between two points 
+        on the earth (specified in decimal degrees)
+        """
+        # convert decimal degrees to radians 
+        lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+        # haversine formula 
+        dlon = lon2 - lon1 
+        dlat = lat2 - lat1 
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a)) 
+        km = 6367 * c
+        return km 
+        
+        
     # Returns a json with details to be displayed about a given POI
     # Called whenever a marker is clicked
     # place - the yelpid
@@ -87,8 +108,16 @@ class poiHandler(webapp2.RequestHandler):
                 tweetEntry = self.tweets.find_one({"id":item["tweetID"]})
                 if tweetEntry is not None:
                     tweetEntry["type"] = "linkedTweet"
+                    tweetUserID = tweetEntry["fromUserID"]
+                    # get tweet user's data
+                    tweetUser = self.tweetUsers.find_one({"id":tweetUserID})
+                    if tweetUser is not None:
+                        tweetUser["type"] = "nearbyTweetUser"
+                        tweetUserEntry = json.dumps(tweetUser, default=json_util.default)
+                        tweetEntry["userdata"] = json.JSONDecoder().decode(tweetUserEntry)
                     tweetEntry = json.dumps(tweetEntry, default=json_util.default)
-                    resData = '%s %s,' % (resData, tweetEntry)   
+                    resData = '%s %s,' % (resData, tweetEntry)    
+                    
             elif item.get("flickrID") is not None:
                 flickrEntry = self.flickr.find_one({"id":item["flickrID"]})
                 if flickrEntry is not None:
@@ -100,10 +129,21 @@ class poiHandler(webapp2.RequestHandler):
         yelpEntry = self.yelp.find_one({"id":place})
         loc = yelpEntry["loc"]
         nearTweets = self.tweets.find({"loc":{"$near":loc}}).limit(self.nearbyTweetCount)
+        nearTweetUserLocations = []
         for tweet in nearTweets:
             tweet["type"] = "nearbyTweet"
+            tweetUserID = tweet["fromUserID"]
+            # get tweet user's data
+            tweetUser = self.tweetUsers.find_one({"id":tweetUserID})
+            if tweetUser is not None:
+                if tweetUser.get("loc") is not None:
+                    nearTweetUserLocations.append(tweetUser["loc"]) # using this for hipness calc
+                tweetUser["type"] = "nearbyTweetUser"
+                tweetUserEntry = json.dumps(tweetUser, default=json_util.default)
+                tweet["userdata"] = json.JSONDecoder().decode(tweetUserEntry)
             tweet = json.dumps(tweet, default=json_util.default)
             resData = '%s %s,' % (resData, tweet)  
+            
         nearFlickr = self.tweets.find({"loc":{"$near":loc}}).limit(self.nearbyFlickrCount)
         for flickr in nearFlickr:
             flickr["type"] = "nearbyFlickr"
@@ -118,6 +158,17 @@ class poiHandler(webapp2.RequestHandler):
             resData = '%s %s,' % (resData, yelp)  
         
         # - hipness score : TODO
+        # * find X closest tweets
+        # * find how far away their users are tagged from POI
+        # * farther values detract, closer values do not        
+        sumDist = 0
+        for tweetLoc in nearTweetUserLocations:
+            dist = self.haversine(tweetLoc[0],tweetLoc[1],loc[0],loc[1])
+            print dist
+            sumDist = sumDist + dist
+        avgDist = sumDist/len(nearTweetUserLocations)
+        print avgDist
+        resData = '%s {"type":"hipness", "value":"%s"},' % (resData, avgDist) 
         
         
         if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
