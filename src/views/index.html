@@ -33,6 +33,50 @@
                 height:85%;
 			}
             
+            
+            #comparisonBar{
+            
+            }
+            
+            #localsBar{
+                float:left;
+                background-color: #5eb95e;
+                background-image: -moz-linear-gradient(top, #62c462, #57a957);
+                background-image: -ms-linear-gradient(top, #62c462, #57a957);
+                background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#62c462), to(#57a957));
+                background-image: -webkit-linear-gradient(top, #62c462, #57a957);
+                background-image: -o-linear-gradient(top, #62c462, #57a957);
+                background-image: linear-gradient(top, #62c462, #57a957);
+                background-repeat: repeat-x;
+                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#62c462', endColorstr='#57a957', GradientType=0);
+            }
+            
+            #semiLocalsBar{
+                float:left;
+                background-color: #faa732;
+                background-image: -moz-linear-gradient(top, #fbb450, #f89406);
+                background-image: -ms-linear-gradient(top, #fbb450, #f89406);
+                background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fbb450), to(#f89406));
+                background-image: -webkit-linear-gradient(top, #fbb450, #f89406);
+                background-image: -o-linear-gradient(top, #fbb450, #f89406);
+                background-image: linear-gradient(top, #fbb450, #f89406);
+                background-repeat: repeat-x;
+                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fbb450', endColorstr='#f89406', GradientType=0);
+            }
+            
+            #touristsBar{
+                float:right;
+                background-color: #dd514c;
+                background-image: -moz-linear-gradient(top, #ee5f5b, #c43c35);
+                background-image: -ms-linear-gradient(top, #ee5f5b, #c43c35);
+                background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ee5f5b), to(#c43c35));
+                background-image: -webkit-linear-gradient(top, #ee5f5b, #c43c35);
+                background-image: -o-linear-gradient(top, #ee5f5b, #c43c35);
+                background-image: linear-gradient(top, #ee5f5b, #c43c35);
+                background-repeat: repeat-x;
+                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ee5f5b', endColorstr='#c43c35', GradientType=0);
+            }
+            
             .yelp{
                 width:100%;
                 height:100px;
@@ -157,6 +201,11 @@
             <div class="progress">
               <div class="bar" style="width: 60%;" id="hipnessBar"></div>
             </div>
+            <div class="progress" id="comparisonBar">
+              <div class="bar" style="width: 33%;" id="localsBar"></div>
+              <div class="bar" style="width: 33%;" id="semiLocalsBar"></div>
+              <div class="bar" style="width: 33%;" id="touristsBar"></div>
+            </div>
             <h4>Yelp Rating</h4>
             <div class="progress">
               <div class="bar" style="width: 60%;" id="yelpBar"></div>
@@ -186,18 +235,7 @@
         </div>
 
         
-        <div class="modal hide fade" id = "aboutModal" style="display:none">
-          <div class="modal-header">
-            <a class="close" data-dismiss="modal">×</a>
-            <h3>About HipTrip</h3>
-          </div>
-          <div class="modal-body">
-            <p>When traveling, there are many existing services that provide reviews to help travelers decide where to dine, shop, or explore. However, distinguishing between places that tourists frequent and places that locals frequent is a challenge that continues to elude review services. In this paper, we present HipTrip, a system that utilizes geo-spatial data from various public sources to determine tourist “hotspots”, and finds highly rated points of interest away from these areas. This application utilizes Semantic Web technology, knowledge bases, and information extraction techniques to synthesize traveler behavior and points of interest in order to expose valuable travel suggestions.</p>
-          </div>
-          <div class="modal-footer">
-                
-          </div>
-        </div>
+        
         
         <div class="modal hide fade" id = "loadingModal" style="display:none;">
           <div class="modal-header">
@@ -205,6 +243,19 @@
           </div>
           <div class="modal-body">
             <p>Please wait while we load up some data... </p>
+          </div>
+          <div class="modal-footer">
+                
+          </div>
+        </div>
+        
+        <div class="modal hide fade" id = "aboutModal" style="display:none">
+          <div class="modal-header">
+            <a class="close" data-dismiss="modal">×</a>
+            <h3>About HipTrip</h3>
+          </div>
+          <div class="modal-body">
+            <p>When traveling, there are many existing services that provide reviews to help travelers decide where to dine, shop, or explore. However, distinguishing between places that tourists frequent and places that locals frequent is a challenge that continues to elude review services. In this paper, we present HipTrip, a system that utilizes geo-spatial data from various public sources to determine tourist “hotspots”, and finds highly rated points of interest away from these areas. This application utilizes Semantic Web technology, knowledge bases, and information extraction techniques to synthesize traveler behavior and points of interest in order to expose valuable travel suggestions.</p>
           </div>
           <div class="modal-footer">
                 
@@ -476,6 +527,12 @@ function markerClick(x){
                 console.log('/details returned');
                 console.log(details);
                 
+                var userCount =  {}; // used to keep track of locals, semilocals, and tourists
+                userCount.total=0;
+                userCount.localsCount = 0;
+                userCount.semiLocalsCount = 0;
+                userCount.touristsCount = 0;
+                
                 function clearBox(){
                     $('#businessTweets').html("");
                     $('#businessFlickr').html("");
@@ -509,6 +566,21 @@ function markerClick(x){
                     tweetContainer.append(tweetContents);
                     
                     $('#businessTweets').append(tweetContainer);
+                    
+                    // bookkeeping for userdata
+                    if(tweet['userdata']){
+                        if(tweet['userdata']['dist'] <10){
+                            userCount.localsCount = userCount.localsCount + 1.0
+                        } else if(tweet['userdata']['dist']<550){
+                            userCount.semiLocalsCount = userCount.semiLocalsCount + 1.0
+                        } else{
+                            userCount.touristsCount = userCount.touristsCount + 1.0
+                        }
+                        userCount.total = userCount.total + 1.0
+                    
+                    }
+                    
+                    
                 }
                 
                 function addFlickr(flickr){
@@ -542,7 +614,13 @@ function markerClick(x){
                     
                 }   
                 
-                
+                // display the user breakdown
+                $('#localsBar').css("width",userCount.localsCount/userCount.total*100+"%");
+                $('#localsBar').html(userCount.localsCount+' locals');
+                $('#semiLocalsBar').css("width",userCount.semiLocalsCount/userCount.total*100+"%");
+                $('#semiLocalsBar').html(userCount.semiLocalsCount+' semiLocals');
+                $('#touristsBar').css("width",userCount.touristsCount/userCount.total*100+"%");
+                $('#touristsBar').html(userCount.touristsCount+' tourists');
                 $('#loadingModal').modal('hide');
             
             } catch(e){
