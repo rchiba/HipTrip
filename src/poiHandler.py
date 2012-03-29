@@ -7,7 +7,7 @@ from pymongo import Connection, json_util
 import json
 import re
 import random
-
+from nltk import word_tokenize
 from math import radians, cos, sin, asin, sqrt
      
 class poiHandler(webapp2.RequestHandler):
@@ -101,6 +101,9 @@ class poiHandler(webapp2.RequestHandler):
         resData = "[" # we're returning an array of objects 
         # (each object being the raw entity mongo entry in json format)
         
+        yelpEntry = self.yelp.find_one({"id":place})
+        loc = yelpEntry["loc"]
+        
         # - linked tweets and linked flickr photos
         linkedData = self.linked.find({"yelpID":place})
         for item in linkedData:
@@ -112,6 +115,9 @@ class poiHandler(webapp2.RequestHandler):
                     # get tweet user's data
                     tweetUser = self.tweetUsers.find_one({"id":tweetUserID})
                     if tweetUser is not None:
+                        if tweetUser.get("loc") is not None: #store dist for heatmap generation
+                            # nearTweetUserLocations.append(tweetUser["loc"]) # using this for hipness calc
+                            tweetUser["dist"] = self.haversine(tweetUser["loc"][0],tweetUser["loc"][1],loc[0],loc[1])
                         tweetUser["type"] = "nearbyTweetUser"
                         tweetUserEntry = json.dumps(tweetUser, default=json_util.default)
                         tweetEntry["userdata"] = json.JSONDecoder().decode(tweetUserEntry)
@@ -126,8 +132,6 @@ class poiHandler(webapp2.RequestHandler):
                     resData = '%s %s,' % (resData, flickrEntry)   
         
         # - nearby tweets and nearby flickr photos
-        yelpEntry = self.yelp.find_one({"id":place})
-        loc = yelpEntry["loc"]
         nearTweets = self.tweets.find({"loc":{"$near":loc}}).limit(self.nearbyTweetCount)
         nearTweetUserLocations = []
         for tweet in nearTweets:
@@ -138,6 +142,7 @@ class poiHandler(webapp2.RequestHandler):
             if tweetUser is not None:
                 if tweetUser.get("loc") is not None:
                     nearTweetUserLocations.append(tweetUser["loc"]) # using this for hipness calc
+                    tweetUser["dist"] = self.haversine(tweetUser["loc"][0],tweetUser["loc"][1],loc[0],loc[1])
                 tweetUser["type"] = "nearbyTweetUser"
                 tweetUserEntry = json.dumps(tweetUser, default=json_util.default)
                 tweet["userdata"] = json.JSONDecoder().decode(tweetUserEntry)
@@ -160,15 +165,29 @@ class poiHandler(webapp2.RequestHandler):
         # - hipness score : TODO
         # * find X closest tweets
         # * find how far away their users are tagged from POI
-        # * farther values detract, closer values do not        
-        sumDist = 0
+        # * score 100 - all locals, score 0 - all out of staters      
+        # * factor in the yelp rating - which can be 0-5
+        sum = 0.0
+        yelpWeight = .3
+        yelpEntry = self.yelp.find_one({"id":place})
+        rating = yelpEntry["rating"]
+        nearTweetUserLocCount = len(nearTweetUserLocations)
         for tweetLoc in nearTweetUserLocations:
             dist = self.haversine(tweetLoc[0],tweetLoc[1],loc[0],loc[1])
-            print dist
-            sumDist = sumDist + dist
-        avgDist = sumDist/len(nearTweetUserLocations)
-        print avgDist
-        resData = '%s {"type":"hipness", "value":"%s"},' % (resData, avgDist) 
+            if dist < 30: # locals
+                sum = sum + 1.0
+            elif dist < 550: # semi - locals
+                sum = sum + .5
+            else: # tourists
+                sum = sum + 0
+        
+        sum = (nearTweetUserLocCount*yelpWeight) * (rating / 5) + sum
+        nearTweetUserLocCount = nearTweetUserLocCount * (1+yelpWeight)
+        
+        
+        avg = sum/nearTweetUserLocCount
+        print avg
+        resData = '%s {"type":"hipness", "value":"%s"},' % (resData, avg*100) 
         
         
         if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
@@ -179,7 +198,28 @@ class poiHandler(webapp2.RequestHandler):
         resData = "%s ]" % resData
         self.response.write(resData)
     
+    # returns yelp pois when search bar is used
+    # ex: /searchquery/poi/search
+    def getSearch(self, query):
+        start = time.clock()
+        resData = "["
+        query = query.lower()
+        query = word_tokenize(query) # word tokens without stopwords
+        yelpEntries = self.yelp.find({"_keywords":{"$in":query}})
+        for yelpEntry in yelpEntries:
+            if yelpEntry is not None:
+                yelpJson = json.dumps(yelpEntry, default=json_util.default)
+                resData = '%s %s,' % (resData, yelpJson)    
+
+        if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
         
+        resData = "%s ]" % resData
+        
+        elapsed = (time.clock() - start)   
+        print "getSearch finished in %s seconds" % elapsed
+        self.response.write(resData)
+            
+     
     def get(self, place, type):
         # return a list of JSON coordinates based on logic located here
         # where are the tourists and where are the locals?
@@ -198,3 +238,5 @@ class poiHandler(webapp2.RequestHandler):
             self.getMostLinked(place)
         elif type == "details":
             self.getDetails(place)
+        elif type == "search":
+            self.getSearch(place)

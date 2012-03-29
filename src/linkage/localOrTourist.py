@@ -90,7 +90,11 @@ class LocalTouristClassifier():
                             
                             
 def main():
+    print "Beginning Twitter user classification"
+    
     l = LocalTouristClassifier()
     l.classifyTwitter()
+    
+    print "Finished Twitter user classification"
 if __name__=="__main__":
     main()

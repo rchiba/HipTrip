@@ -1,0 +1,7 @@
+show dbs
+use yelpDB
+show collections
+db.yelpCollection.find()
+use yelpDB
+show collections
+show c

@@ -131,9 +131,9 @@
               <li class="topBtn" id="greece"><a href="#" >Greece</a></li>
             </ul>
             
-            <form class="navbar-search pull-left" action="">
-                <input type="text" class="search-query span2" placeholder="Search" style="height:27px; margin-left:50px;">
-              </form>
+            <div class="navbar-search pull-left">
+                <input type="text" class="search-query span2" placeholder="Search" style="height:27px; margin-left:50px;" id="search">
+            </div>
             
             <ul class="nav pull-right">
               <li ><a data-toggle="modal" href="#aboutModal">About</a></li>
@@ -157,7 +157,10 @@
             <div class="progress">
               <div class="bar" style="width: 60%;" id="hipnessBar"></div>
             </div>
-
+            <h4>Yelp Rating</h4>
+            <div class="progress">
+              <div class="bar" style="width: 60%;" id="yelpBar"></div>
+            </div>
             
             <h4>Photos</h4>
             <div id="businessPhotos">
@@ -332,6 +335,8 @@ function bind(){
         zoomTo($(this), greece, 12);
     });
     
+    $('#search').bind('keypress', search);
+    
     /*
     document.getElementById("heatmapLocalsToggle").onclick = function(){
         heatmaps.localsHeatmap.toggle();	
@@ -391,6 +396,61 @@ function ajax(place){
    
     
 }
+
+// Search for the places and display them when searchbox is used
+function search(e){
+    var code = e.keyCode || e.which
+    if(code == 13){ // enter was pressed
+        var query = $(this).val();
+        // query database
+        $.ajax({
+        url: "/"+query+"/poi/search",
+        cache: true,
+        success: function(res){
+            try{
+                // save into global (I know this is bad.)
+                pois = JSON.parse(res);
+                // add each poi into the markers layer
+                console.log('/mostlinked returned');
+                console.log(pois);
+                if(markers != null){
+                    markers.destroy();
+                }
+                markers = new OpenLayers.Layer.Markers( "Markers" );
+                map.addLayer(markers);
+                
+                // Custom marker
+                var size = new OpenLayers.Size(21,25);
+                var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+                var icon = new OpenLayers.Icon('http://localhost:1234/img/marker.png', size, offset);
+                
+                
+                for (var x = 0; x < pois.length; x++) {
+                    var poi = pois[x];
+                    console.log('adding market at '+poi.loc[0]+', '+poi.loc[1]);
+                    var lonLat = new OpenLayers.LonLat( poi.loc[1] , poi.loc[0] ).transform(
+                        new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                        map.getProjectionObject() // to Spherical Mercator Projection
+                    );
+                    var marker = new OpenLayers.Marker(lonLat);
+                    marker.pois = poi;
+                    var localIndex = x;
+                    marker.events.register('mousedown', marker, markerClick.bind(this,x));
+                    markers.addMarker(marker, icon.clone());
+                }
+                
+                
+                $('#loadingModal').modal('hide');
+            
+            } catch(e){
+                console.log(e.message);
+            }
+        } // END success
+        }); // END ajax
+        
+    }
+}
+
 
 // Make all the necessary calls when a marker is clicked
 function markerClick(x){
@@ -469,11 +529,15 @@ function markerClick(x){
                     } else if(type == "nearbyFlickr"){
                         addFlickr(detail);
                     } else if(type == "yelpEntry"){
-                    
+                        
+                        // set the yelp bar
+                        var score = detail['rating'];
+                        $('#yelpBar').css('width',score/5.0*100+'%');
+                        $('#yelpBar').text(score+'/5 stars');
                     } else if(type == "hipness"){
                        var score = detail['value'];
                        $('#hipnessBar').css('width',score+'%');
-                       $('#hipnessBar').text(score+'/100 hipness');
+                       $('#hipnessBar').text(Math.floor(score)+'/100 hipness');
                     }
                     
                 }   
