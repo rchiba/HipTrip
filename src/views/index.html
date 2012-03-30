@@ -31,8 +31,12 @@
                 border: 1px solid #999;
                 overflow-y:scroll;
                 height:85%;
+                overflow-x:hidden;
 			}
             
+            #configAreaContainer{
+                display:none;
+            }
             
             #comparisonBar{
             
@@ -158,6 +162,62 @@
 
 </head>
 <body>
+<div class="modal hide fade" id = "aboutModal" >
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>About HipTrip</h3>
+  </div>
+  <div class="modal-body">
+    <p>A project by Cort Werner and Ryo Chiba</p>
+    <a href="/docs/Proposal.docx">Research Paper</a>
+  </div>
+  <div class="modal-footer">
+        
+  </div>
+</div>
+
+<div class="modal hide fade" id = "helpModal" >
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>How to Use HipTrip</h3>
+  </div>
+  <div class="modal-body">
+    <p>
+    <h4>Introduction</h4>
+    <ul>
+    <li>When hiptrip is first loaded, it is confgured to show the 15 most linked points of interest. </li>
+    <li>You can search for points of interest using the search bar at the top.</li>
+    </ul>
+    <h4>Markers</h4>
+    <ul>
+    <li>Click on any of the map markers to display the following details:
+        <ul>
+        <li><b>heatmap</b> - A heatmap of nearby tweets/flickr photos is displayed on the map</li>
+        <li><b>Hipness score</b> - generated from the yelp review and how many tourists/locals are posting nearby</li>
+        <li><b>Nearby user breakdown</b> - local/semilocal/tourist classification breakdown for the users posting nearby. They were classified as follows:
+            <ul>
+            <li><i>local</i> - user account tagged within 30km of poi</li>
+            <li><i>semilocal</i> - user account tagged within 500km of poi</li>
+            <li><i>tourist</i> - user account tagged farther than 500km of poi</li>
+            </ul>
+        </li>
+        <li><b>Yelp rating</b> - clicking on the title will open a tab to the yelp page</li>
+        <li><b>Linked/Nearby photos</b> - linked using a NER tool and string comparison</li>
+        <li><b>Linked/Nearby tweets</b> - linked data is marked with a green label</li>
+        </ul>
+    </li>
+    </ul>
+    <h4>Notes</h4>
+    <ul>
+    <li><i>Note: support for other cities is coming. At the moment, San Francisco is the only one we've covered.</i></li>
+    </ul>
+    </p>
+  </div>
+  <div class="modal-footer">
+        
+  </div>
+</div>
+
     <!-- Navbar -->
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
@@ -180,6 +240,7 @@
             </div>
             
             <ul class="nav pull-right">
+              <li ><a data-toggle="modal" href="#helpModal">Instructions</a></li>
               <li ><a data-toggle="modal" href="#aboutModal">About</a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -193,33 +254,36 @@
         <div id="heatmapArea">
             
         </div>
+        
+        <!-- the sidebox-->
         <div id="configArea">
-            <div id="businessName"></div>
-            <div id="businessImage"></div>
-            <div id="businessRatings">
-            <h4>Hipness</h4>
-            <div class="progress">
-              <div class="bar" style="width: 60%;" id="hipnessBar"></div>
-            </div>
-            <div class="progress" id="comparisonBar">
-              <div class="bar" style="width: 33%;" id="localsBar"></div>
-              <div class="bar" style="width: 33%;" id="semiLocalsBar"></div>
-              <div class="bar" style="width: 33%;" id="touristsBar"></div>
-            </div>
-            <h4>Yelp Rating</h4>
-            <div class="progress">
-              <div class="bar" style="width: 60%;" id="yelpBar"></div>
-            </div>
-            
-            <h4>Photos</h4>
-            <div id="businessPhotos">
-            </div>
-            <br />
-            
-            <h4>Tweets</h4>
-            <div id="businessTweets">
-            </div>
-            <br />
+            <div id="configAreaContainer">
+                <div id="businessName"></div>
+                <div id="businessImage"></div>
+                <div id="businessRatings">
+                <h4>Hipness</h4>
+                <div class="progress">
+                  <div class="bar" style="width: 60%;" id="hipnessBar"></div>
+                </div>
+                <div class="progress" id="comparisonBar">
+                  <div class="bar" style="width: 33%;" id="localsBar"></div>
+                  <div class="bar" style="width: 33%;" id="semiLocalsBar"></div>
+                  <div class="bar" style="width: 33%;" id="touristsBar"></div>
+                </div>
+                <h4>Yelp Rating</h4>
+                <div class="progress">
+                  <div class="bar" style="width: 60%;" id="yelpBar"></div>
+                </div>
+                
+                <h4>Photos</h4>
+                <div id="businessPhotos">
+                </div>
+                <br />
+                
+                <h4>Tweets</h4>
+                <div id="businessTweets">
+                </div>
+                <br />
             
             <!--
             <h4>Overlays</h4>
@@ -231,7 +295,7 @@
                 <button id="poiToggle" class="btn btn-primary">HipTips</button>
             </div>
             -->
-            
+            </div>
         </div>
 
         
@@ -249,18 +313,7 @@
           </div>
         </div>
         
-        <div class="modal hide fade" id = "aboutModal" style="display:none">
-          <div class="modal-header">
-            <a class="close" data-dismiss="modal">×</a>
-            <h3>About HipTrip</h3>
-          </div>
-          <div class="modal-body">
-            <p>When traveling, there are many existing services that provide reviews to help travelers decide where to dine, shop, or explore. However, distinguishing between places that tourists frequent and places that locals frequent is a challenge that continues to elude review services. In this paper, we present HipTrip, a system that utilizes geo-spatial data from various public sources to determine tourist “hotspots”, and finds highly rated points of interest away from these areas. This application utilizes Semantic Web technology, knowledge bases, and information extraction techniques to synthesize traveler behavior and points of interest in order to expose valuable travel suggestions.</p>
-          </div>
-          <div class="modal-footer">
-                
-          </div>
-        </div>
+        
         
     </div> <!-- /container -->
     
@@ -279,6 +332,8 @@
 <script src="/bootstrap/js/bootstrap-transition.js"></script>
 <script src="/bootstrap/js/bootstrap-button.js"></script>
 <script src="/bootstrap/js/bootstrap-modal.js"></script>
+
+<script src="/js/jquery-textfill-0.1.js"></script>
 <!--
 <script src="/bootstrap/js/bootstrap-collapse.js"></script>
 <script src="/bootstrap/js/bootstrap-carousel.js"></script>
@@ -451,6 +506,7 @@ function ajax(place){
 // Search for the places and display them when searchbox is used
 function search(e){
     var code = e.keyCode || e.which
+    $('#configAreaContainer').css('opacity','.5');
     if(code == 13){ // enter was pressed
         var query = $(this).val();
         // query database
@@ -490,8 +546,9 @@ function search(e){
                     markers.addMarker(marker, icon.clone());
                 }
                 
-                
+                $('#configAreaContainer').css('opacity','.9');
                 $('#loadingModal').modal('hide');
+                
             
             } catch(e){
                 console.log(e.message);
@@ -513,9 +570,10 @@ function markerClick(x){
     var name = poi['name'];
     var yelpURL = poi['url'];
     
-    $('#businessName').html("<a href='"+yelpURL+"' target='_blank'>"+name+"</a>");
+    $('#businessName').html("<span><a href='"+yelpURL+"' target='_blank'>"+name+"</a></span>");
     $('#businessImage').html("<img src='"+image+"' />");
     
+    $('#configAreaContainer').css('opacity','.5');
     // call the backend for details
     $.ajax({
         url: "/"+id+"/poi/details",
@@ -621,7 +679,11 @@ function markerClick(x){
                 $('#semiLocalsBar').html(userCount.semiLocalsCount+' semiLocals');
                 $('#touristsBar').css("width",userCount.touristsCount/userCount.total*100+"%");
                 $('#touristsBar').html(userCount.touristsCount+' tourists');
+                
                 $('#loadingModal').modal('hide');
+                $('#configAreaContainer').css('display','block');
+                $('#configAreaContainer').css('opacity','.9');
+                $('#businessName').textfill({ maxFontPixels: 30 });
             
             } catch(e){
                 console.log(e.message);
@@ -659,6 +721,8 @@ function markerClick(x){
                 heatmaps.poiHeatmap.setDataSet(transformedTestData);
                 
                 $('#loadingModal').modal('hide');
+                $('#configAreaContainer').css('display','block');
+                $('#configAreaContainer').css('opacity','.9');
             
             } catch(e){
                 console.log(e.message);
