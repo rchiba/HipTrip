@@ -32,7 +32,7 @@ class poiHandler(webapp2.RequestHandler):
         
         self.mostLinkedCount = 20 # how many most linked pois to return?
         self.nearbyTweetCount = 100 # how many nearby tweets to return?
-        self.nearbyFlickrCount = 20 # how many nearby photos to return?
+        self.nearbyFlickrCount = 30 # how many nearby photos to return?
         
         
     # used in calculating hipness score
@@ -152,9 +152,13 @@ class poiHandler(webapp2.RequestHandler):
             tweet = json.dumps(tweet, default=json_util.default)
             resData = '%s %s,' % (resData, tweet)  
             
-        nearFlickr = self.tweets.find({"loc":{"$near":loc}}).limit(self.nearbyFlickrCount)
+        nearFlickr = self.flickr.find({"loc":{"$near":loc}}).limit(self.nearbyFlickrCount)
         for flickr in nearFlickr:
             flickr["type"] = "nearbyFlickr"
+            if flickr.get("userLoc") is not None:
+                flickr["dist"] = self.haversine(flickr["userLoc"][0],flickr["userLoc"][1],loc[0],loc[1])
+                print "flickr dist is %s"%flickr['dist']
+            
             flickr = json.dumps(flickr, default=json_util.default)
             resData = '%s %s,' % (resData, flickr)  
 

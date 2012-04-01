@@ -155,6 +155,9 @@
                 font-size:12px;
             }
             
+            #businessPhotos{
+                width:300px;
+            }
             
 		</style>
 <!--<link rel="shortcut icon" type="image/png" href="http://www.patrick-wied.at/img/favicon.png" />-->
@@ -594,6 +597,7 @@ function markerClick(x){
                 function clearBox(){
                     $('#businessTweets').html("");
                     $('#businessFlickr').html("");
+                    $('#businessPhotos').html("");
                 }
                 clearBox();
                 
@@ -610,9 +614,13 @@ function markerClick(x){
                     var tweetContents = makeDiv('tweetContents');
                     var tweetImage = makeDiv('tweetImage');
                     
-                    tweetUsername.html(tweet['fromUser']);
+                    tweetUsername.html('<a href="http://twitter.com/'+tweet['fromUser']+'">'+tweet['fromUser']+"</a>");
                     tweetContents.html(tweet['text']);
-                    tweetImage.html('img');
+                    if(tweet['userdata']){
+                    tweetImage.html('<a href="http://twitter.com/'+tweet['fromUser']+'" target="_blank"><img src="'+tweet['userdata']['profileImgUrl']+'" \></a>');
+                    } else{
+                        tweetImage.html('');
+                    }
                     
                     if(!isLinked){
                         tweetContainer.append(tweetUsername);
@@ -627,22 +635,45 @@ function markerClick(x){
                     
                     // bookkeeping for userdata
                     if(tweet['userdata']){
-                        if(tweet['userdata']['dist'] <10){
-                            userCount.localsCount = userCount.localsCount + 1.0
-                        } else if(tweet['userdata']['dist']<550){
-                            userCount.semiLocalsCount = userCount.semiLocalsCount + 1.0
-                        } else{
-                            userCount.touristsCount = userCount.touristsCount + 1.0
+                        if(tweet['userdata']['dist']){
+                            if(tweet['userdata']['dist'] <10){
+                                userCount.localsCount = userCount.localsCount + 1.0
+                            } else if(tweet['userdata']['dist']<550){
+                                userCount.semiLocalsCount = userCount.semiLocalsCount + 1.0
+                            } else{
+                                userCount.touristsCount = userCount.touristsCount + 1.0
+                            }
+                            userCount.total = userCount.total + 1.0
                         }
-                        userCount.total = userCount.total + 1.0
                     
                     }
                     
                     
                 }
                 
+                // given a flickr object, add to the flickr photos carousel
                 function addFlickr(flickr){
-                
+                    if(flickr.server){
+                        console.log('flickr server exists!');
+                        // generate the URLs
+                        var server = flickr['server'];
+                        var secret = flickr['secret'];
+                        var farm = flickr['farm'];
+                        var id = flickr['id'];
+                        var userid = flickr['ownerID'];
+                        var smallURL = 'http://farm'+farm+'.staticflickr.com/'+server+'/'+id+'_'+secret+'_s.jpg';
+                        var pageURL = 'http://www.flickr.com/photos/'+userid+'/'+id;
+                        
+                        // add photos to carousel
+                        var img = $(document.createElement('img'));
+                        img.attr('src',smallURL);
+                        var link = $(document.createElement('a'));
+                        link.attr('target','_blank');
+                        link.attr('href', pageURL);
+                        link.append(img);
+                        $('#businessPhotos').append(link);
+                    
+                    }
                 }
                 
                 // iterate through details and place each object in the right place

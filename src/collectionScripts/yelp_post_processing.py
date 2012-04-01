@@ -17,7 +17,10 @@ class YelpPostProcessor():
     def __init__(self):
         self.yelp_db = Connection()["yelpDB"]
         self.yelp_collection = self.yelp_db["yelpCollection"]
-        
+        API_KEY = 'dj0yJmk9UUY5TWxNMXBRb0M3JmQ9WVdrOVV6RlVOWFEzTjJzbWNHbzlNVGMzTVRBNE5EazJNZy0tJnM9Y29uc3VtZXJzZWNyZXQmeD0zYQ--'
+        SHARED_SECRET = '92a96753c369996f18b6a2ef4a6b1b9c85de04f5'
+        self.y = yql.TwoLegged(API_KEY, SHARED_SECRET)
+        self.yqlCache = {}
         
     # generating some tags to index by so we can do string search
     def generateKeywords(self):

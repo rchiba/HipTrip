@@ -17,10 +17,7 @@ class LocalTouristClassifier():
         
         self.photos = Connection().flickrDB.flickrCollection
         self.linked = Connection().linkedDB.linkedCollection
-        self.MAX_EDIT_DISTANCE = 3
-        self.places = ['san francisco','los angeles']
-        self.place = self.places[0] # a tourist or local of where?
-        self.cityEditDistanceThreshold = 2
+        
         API_KEY = 'dj0yJmk9UUY5TWxNMXBRb0M3JmQ9WVdrOVV6RlVOWFEzTjJzbWNHbzlNVGMzTVRBNE5EazJNZy0tJnM9Y29uc3VtZXJzZWNyZXQmeD0zYQ--'
         SHARED_SECRET = '92a96753c369996f18b6a2ef4a6b1b9c85de04f5'
         self.y = yql.TwoLegged(API_KEY, SHARED_SECRET)
@@ -29,23 +26,7 @@ class LocalTouristClassifier():
     def unescape_html_chars(self, item):
         return item.replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<").replace("&quot;", "\"")
         
-    def isLocalOf(self, userLocation, place):
-        if place is self.places[0]: # san francisco
-            # split by comma, whitespace, trim, then exact match for SF or threshold for san francisco
-            userLocation = userLocation.lower().strip()
-            userLocation = userLocation.split(',');
-            for token in userLocation:
-                token.strip()
-                if edit_distance(token, 'san francisco') < self.cityEditDistanceThreshold:
-                    return True
-                if edit_distance(token, 'san francisco ca') < self.cityEditDistanceThreshold:
-                    return True
-                if 'san francisco' in token:
-                    return True
-                elif token is 'sf':
-                    return True
-                    
-            return False
+
         
     def classifyTwitter(self):
         for tweet in self.tweets.find({"place":self.place}):
