@@ -1,0 +1,58 @@
+<html>
+
+<head>
+</head>
+
+<body>
+<h1>HipTrip</h1>
+<p>by Cort Werner and Ryo Chiba</p>
+<h3>Abstract</h3>
+<p>
+When traveling, there are many existing services that provide reviews to help travelers decide where to dine, shop, or explore. However, distinguishing between places that tourists frequent and places that locals frequent is a challenge that continues to elude review services. In this paper, we present HipTrip, a novel system that utilizes geo-spatial data from various public sources to determine local “hotspots”, and finds highly rated points of interest within these areas. This application utilizes Semantic Web technology, named entity recognition, knowledge bases, and information extraction techniques to synthesize traveler behavior and points of interest in order to expose a visual layer of valuable data for travelers.
+</p>
+
+<h3>Instructions</h3>
+<p>
+    <h4>Introduction</h4>
+    <ul>
+    <li>When hiptrip is first loaded, it is confgured to show the 15 most linked points of interest. </li>
+    <li>You can search for points of interest using the search bar at the top.</li>
+    </ul>
+    <h4>Markers</h4>
+    <ul>
+    <li>Click on any of the map markers to display the following details:
+        <ul>
+        <li><b>heatmap</b> - A heatmap of nearby tweets/flickr photos is displayed on the map</li>
+        <li><b>Hipness score</b> - generated from the yelp review and how many tourists/locals are posting nearby</li>
+        <li><b>Nearby user breakdown</b> - local/semilocal/tourist classification breakdown for the users posting nearby. They were classified as follows:
+            <ul>
+            <li><i>local</i> - user account tagged within 30km of poi</li>
+            <li><i>semilocal</i> - user account tagged within 500km of poi</li>
+            <li><i>tourist</i> - user account tagged farther than 500km of poi</li>
+            </ul>
+        </li>
+        <li><b>Yelp rating</b> - clicking on the title will open a tab to the yelp page</li>
+        <li><b>Linked/Nearby photos</b> - linked using a NER tool and string comparison</li>
+        <li><b>Linked/Nearby tweets</b> - linked data is marked with a green label</li>
+        </ul>
+    </li>
+    </ul>
+    <h4>Notes</h4>
+    <ul>
+    <li><i>Note: support for other cities is coming. At the moment, San Francisco is the only one we've covered.</i></li>
+    </ul>
+    
+</p>
+
+<h3>Links</h3>
+<p>
+<ul>
+<li><a href="http://hiptrip.us">Link to HipTrip</a></li>
+<li><a href="http://ryobox.dyndns.info:1234/docs/Proposal.pdf">Link to HipTrip Paper</a></li>
+</ul>
+</p>
+
+</body>
+
+
+</html>

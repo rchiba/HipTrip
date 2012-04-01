@@ -29,7 +29,7 @@ class YelpPostProcessor():
         for entry in yelpEntries:
             if entry.get("name") is not None:
                 keywords = "%s %s" % ("", entry["name"].encode('ascii', 'ignore'))
-            if entry.get("snipped_text") is not None:
+            if entry.get("snippet_text") is not None:
                 keywords = "%s %s" % (keywords, entry["snippet_text"].encode('ascii', 'ignore'))
             keywords = keywords.lower() # case insensitive
             keywords = word_tokenize(keywords) # word tokens without stopwords
