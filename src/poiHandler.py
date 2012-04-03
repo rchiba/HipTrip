@@ -169,7 +169,32 @@ class poiHandler(webapp2.RequestHandler):
             yelp = json.dumps(yelp, default=json_util.default)
             resData = '%s %s,' % (resData, yelp)  
         
-        # - hipness score : TODO
+        avg = self.getHipnessScore(place)
+        resData = '%s {"type":"hipness", "value":"%s"},' % (resData, avg*100) 
+        
+        
+        if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
+        elapsed = (time.clock() - start)   
+        print "getDetails() finished in %s seconds" % elapsed
+        
+        
+        resData = "%s ]" % resData
+        self.response.write(resData)
+    
+    # helper function for getting hipness score
+    def confidence_fixed(ups, downs):
+        if ups == 0:
+            return -downs
+        n = ups + downs
+        z = 1.64485 #1.0 = 85%, 1.6 = 95%
+        phat = float(ups) / n
+        return (phat+z*z/(2*n)-z*sqrt((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
+    
+    # returns the hipness score given a yelp id (place)
+    # we'll use the ranking algorithm discussed here
+    # http://possiblywrong.wordpress.com/2011/06/05/reddits-comment-ranking-algorithm/
+    def getHipnessScore(self, place):
+        # - hipness score 
         # * find X closest tweets
         # * find how far away their users are tagged from POI
         # * score 100 - all locals, score 0 - all out of staters      
@@ -193,19 +218,14 @@ class poiHandler(webapp2.RequestHandler):
         
         
         avg = sum/nearTweetUserLocCount
-        print avg
-        resData = '%s {"type":"hipness", "value":"%s"},' % (resData, avg*100) 
-        
-        
-        if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
-        elapsed = (time.clock() - start)   
-        print "getDetails() finished in %s seconds" % elapsed
-        
-        
-        resData = "%s ]" % resData
-        self.response.write(resData)
+        return avg
+    
+    
     
     # returns yelp pois when search bar is used
+    # also returns some data for initial screen
+    # like, we need to rank each poi before sending it down
+    # relative to all the other finds
     # ex: /searchquery/poi/search
     def getSearch(self, query):
         start = time.clock()
