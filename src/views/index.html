@@ -382,6 +382,23 @@
                 <br />
             </div>
             </script>
+            <script id="initTemplate" type="text/html"> 
+            <div id="configAreaContainer">
+                <h2>Welcome to HipTrip!</h2>
+                <hr />
+                
+                Shown on the map are the 15 most linked points of interest for this location. Click any of them to learn how hip they are, or search for keywords to find the hippest results for your query.
+                
+                <br />
+                <hr />
+                <h4>Some example searches:</h4>
+                <ul>
+                <li><a href="#" class="btn exampleQuery">park</a></li>
+                <li><a href="#" class="btn exampleQuery">museum</a></li>
+                <li><a href="#" class="btn exampleQuery">thai</a></li>
+                </ul>
+            </div>
+            </script>
         </div>
 
         
@@ -722,10 +739,11 @@ function renderPoiList(){
 }
 
 // Search for the places and display them when searchbox is used
-function search(e){
+// query - optional string query, otherwise is an event handler
+function search(e, myQuery){
     var code = e.keyCode || e.which
     
-    if(code == 13){ // enter was pressed
+    if(code == 13 || myQuery){ // enter was pressed
     
         // load the listTemplate
         $('#configArea').html("");
@@ -734,7 +752,13 @@ function search(e){
         $('#configAreaLoading').css('display','block');
         $('#configAreaContainer').css('opacity','.5');
     
-        var query = $(this).val();
+        var query;
+        if(myQuery){
+            query = myQuery;
+        } else{
+            query = $('#search').val();
+        }
+        
         // query database
         $.ajax({
         url: "/"+query+"/poi/search",
@@ -985,10 +1009,18 @@ function markerClick(x){
 }
 
 // Creates the layer for the points of interest
-function renderPOI(place){
-    console.log('renderPOI('+place+')');
+// initialization for the sidebar
+function renderPOI(myPlace){
+    console.log('renderPOI('+myPlace+')');
+    $('#configArea').html("");
+    $('#configArea').html(ich.initTemplate({}));
+    $('.exampleQuery').unbind();
+    $('.exampleQuery').click(function(){
+        var query = $(this).text();
+        search({}, query);
+    });
     $.ajax({
-        url: "/"+place+"/poi/mostlinked",
+        url: "/"+myPlace+"/poi/mostlinked",
         cache: true,
         success: function(res){
             try{
