@@ -169,8 +169,8 @@ class poiHandler(webapp2.RequestHandler):
             yelp = json.dumps(yelp, default=json_util.default)
             resData = '%s %s,' % (resData, yelp)  
         
-        avg = self.getHipnessScore(place)
-        resData = '%s {"type":"hipness", "value":"%s"},' % (resData, avg*100) 
+        hipness = self.getHipnessScore(place)
+        resData = '%s {"type":"hipness", "value":"%s"},' % (resData, hipness) 
         
         
         if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
@@ -182,13 +182,14 @@ class poiHandler(webapp2.RequestHandler):
         self.response.write(resData)
     
     # helper function for getting hipness score
-    def confidence_fixed(ups, downs):
+    def confidence_fixed(self, ups, downs):
         if ups == 0:
             return -downs
         n = ups + downs
         z = 1.64485 #1.0 = 85%, 1.6 = 95%
         phat = float(ups) / n
         return (phat+z*z/(2*n)-z*sqrt((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
+    
     
     # returns the hipness score given a yelp id (place)
     # we'll use the ranking algorithm discussed here
@@ -199,26 +200,42 @@ class poiHandler(webapp2.RequestHandler):
         # * find how far away their users are tagged from POI
         # * score 100 - all locals, score 0 - all out of staters      
         # * factor in the yelp rating - which can be 0-5
-        sum = 0.0
+        ups = 0.0
+        downs = 0.0
         yelpWeight = .3
         yelpEntry = self.yelp.find_one({"id":place})
+        loc = yelpEntry["loc"]
         rating = yelpEntry["rating"]
+        
+        nearTweets = self.tweets.find({"loc":{"$near":loc}}).limit(self.nearbyTweetCount)
+        nearTweetUserLocations = []
+        for tweet in nearTweets:
+            tweetUser = self.tweetUsers.find_one({"id":tweet["fromUserID"]})
+            if tweetUser is not None:
+                if tweetUser.get("loc") is not None:
+                    nearTweetUserLocations.append(tweetUser["loc"]) # using this for hipness calc
+        
         nearTweetUserLocCount = len(nearTweetUserLocations)
         for tweetLoc in nearTweetUserLocations:
             dist = self.haversine(tweetLoc[0],tweetLoc[1],loc[0],loc[1])
             if dist < config['localDistance']: # locals
-                sum = sum + 1.0
+                ups = ups + 1.0
             elif dist < config['semiLocalDistance']: # semi - locals
-                sum = sum + .5
+                # do nothing
+                ups = ups
             else: # tourists
-                sum = sum + 0
+                downs = downs + 1.0
+                
+        localsScore = self.confidence_fixed(ups, downs)*(1.0-yelpWeight)*100
+        yelpScore = (rating/5*100)*yelpWeight
+        hipnessScore = localsScore+yelpScore
+        if hipnessScore < 0:
+            hipnessScore = 0
+        #print "localScore is %s" % localsScore
+        #print "yelpScore is %s" % yelpScore
+        return hipnessScore
         
-        sum = (nearTweetUserLocCount*yelpWeight) * (rating / 5) + sum
-        nearTweetUserLocCount = nearTweetUserLocCount * (1+yelpWeight)
         
-        
-        avg = sum/nearTweetUserLocCount
-        return avg
     
     
     
@@ -233,11 +250,14 @@ class poiHandler(webapp2.RequestHandler):
         query = query.lower()
         query = word_tokenize(query) # word tokens without stopwords
         yelpEntries = self.yelp.find({"_keywords":{"$in":query}})
+        # 1. find hipness and embed data
         for yelpEntry in yelpEntries:
             if yelpEntry is not None:
+                yelpEntry["hipness"] = self.getHipnessScore(yelpEntry["id"])
                 yelpJson = json.dumps(yelpEntry, default=json_util.default)
-                resData = '%s %s,' % (resData, yelpJson)    
-
+                resData = '%s %s,' % (resData, yelpJson)
+                
+        
         if resData.endswith(","):resData = resData[:-1] #remove the trailing comma
         
         resData = "%s ]" % resData

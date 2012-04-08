@@ -44,7 +44,7 @@
             }
             
             #configAreaContainer{
-                display:none;
+                /*display:none;*/
             }
             
             #comparisonBar{
@@ -152,7 +152,7 @@
                 height:40px;
                 width:40px;
                 margin-top:-18px;
-                border: 1px solid #ccc;
+                
             }
             
             .tweetContents{
@@ -165,6 +165,68 @@
             #businessPhotos{
                 width:300px;
             }
+            
+            .listContainer{
+                position:relative;
+                margin-top:15px;
+                height:60px;
+            }
+            
+            .listOrder{
+                position:absolute;
+                width:40px;
+                text-align:center;
+                font-size:26px;
+                font-weight:bold;
+                color:black;
+                opacity:.9;
+                margin-top:13px;
+            }
+            
+            .listImg{
+                height:40px;
+                width:40px;
+                border: 1px solid #ccc;
+            }
+            
+            .listName{
+                left:50px;
+                top:0px;
+                position:absolute;
+                width:240px;
+                font-size:20px;
+                line-height:21px;
+            }
+            
+            .listHipness{
+                font-size:10px;
+            }
+            
+            .listRating{
+                font-size:10px;
+            }
+            
+            #backToListBtn{
+                font-size:12px;
+                height:14px;
+                padding:4px;
+                padding-top:0px;
+                width:100px;
+                margin-top:-16px;
+                margin-left:-17px;
+            }
+            
+            #configAreaLoading{
+                height:140px;
+                width:140px;
+                margin-right:auto;
+                margin-left:auto;
+                margin-top:200px;
+                background-image:url(/img/loading.gif);
+                text-align:center;
+                position:relative;
+            }
+            
             
 		</style>
 <!--<link rel="shortcut icon" type="image/png" href="http://www.patrick-wied.at/img/favicon.png" />-->
@@ -277,10 +339,11 @@
         
         <!-- the sidebox-->
         <div id="configArea">
+            <script id="detailsTemplate" type="text/html"> 
+            <a class="btn btn-mini" href="#" id="backToListBtn">&laquo; Back to list</a>
             <div id="configAreaContainer">
                 <div id="businessName"></div>
                 <div id="businessImage"></div>
-                <div id="businessRatings">
                 <h4>Hipness</h4>
                 <div class="progress">
                   <div class="bar" style="width: 60%;" id="hipnessBar"></div>
@@ -304,18 +367,21 @@
                 <div id="businessTweets">
                 </div>
                 <br />
-            
-            <!--
-            <h4>Overlays</h4>
-            <div class="btn-group" data-toggle="buttons-checkbox">
-                <button id="heatmapLocalsToggle" class="btn btn-primary">Locals</button>
-                <button id="heatmapTouristsToggle" class="btn btn-primary">Tourists</button>
-                <button id="heatmapFlickrToggle" class="btn btn-primary">Flickr</button>
-                <button id="heatmapTwitterToggle" class="btn btn-primary active">Twitter</button>
-                <button id="poiToggle" class="btn btn-primary">HipTips</button>
             </div>
-            -->
+            </script>
+            <script id="listTemplate" type="text/html"> 
+            <div id="configAreaContainer">
+                <div id="configAreaLoading">
+                    <div style="top:50px;position:absolute;font-size:16px;">this may take up to a minute...</div>
+                </div>
+                <div id="businessName"></div>
+                <div id="businessImage"></div>
+                <h4>Hiplist:</h4>
+                <div id="businessList">
+                </div>
+                <br />
             </div>
+            </script>
         </div>
 
         
@@ -354,6 +420,7 @@
 <script src="/bootstrap/js/bootstrap-modal.js"></script>
 <script src="/bootstrap/js/bootstrap-dropdown.js"></script>
 <script src="/js/jquery-textfill-0.1.js"></script>
+<script src="/js/ICanHaz.min.js"></script>
 <!--
 <script src="/bootstrap/js/bootstrap-collapse.js"></script>
 <script src="/bootstrap/js/bootstrap-carousel.js"></script>
@@ -369,6 +436,11 @@
 <script type="text/javascript">
 var map, layer, heatmaps, markers, losAngeles, sanFrancisco, greece, pois;
 
+// for ie
+//var console = {};
+//console.log = function(){
+    
+//}
 
 
 function init(){
@@ -455,6 +527,7 @@ function bind(){
         $('#search').attr('placeholder','Search for hippest places in San Francisco');
         ajax('sf');
     });
+    /* coming soon
     $('#losAngeles').click(function(event){
         zoomTo($(this), losAngeles, 12);
         $('#placeName').text('Los Angeles');
@@ -465,7 +538,7 @@ function bind(){
         $('#placeName').text('Greece');
         $('#search').attr('placeholder','Search for hippest places in Greece');
         zoomTo($(this), greece, 12);
-    });
+    });*/
     
     $('#search').bind('keypress', search);
     
@@ -529,11 +602,138 @@ function ajax(place){
     
 }
 
+// helper function to make divs
+function makeDiv(name, contents){
+    var div = $(document.createElement('div'));
+    div.addClass(name);
+    if(contents){
+        div.html(contents);
+    }
+    return div;
+}
+
+
+// binds necessary handlers to items constructed in addListItem
+function bindListItem(){
+
+    $('.listLink').unbind();
+    $('.listLink').click(function(e){
+        var order = $(this).attr('id')-1;
+        markerClick(order);
+    });
+    
+
+}
+
+// helper function to construct dom elements to make list element
+// i - list index
+// poi - poi object with all the data
+function addListItem(i, poi){
+    // construct the page
+    console.log('addListItem called');
+    poi.order = i+1;
+    
+    // colorizing the labels
+    if(poi['rating']>4){
+        ratingLabel = 'label-success';
+    } else if(poi['rating'] >3){
+        ratingLabel = 'label-warning';
+    } else{
+        ratingLabel = 'label-important';
+    }
+    
+    if(poi['hipness']>85){
+        hipnessLabel = 'label-success';
+    } else if(poi['hipness'] >80){
+        hipnessLabel = 'label-warning';
+    } else{
+        hipnessLabel = 'label-important';
+    }
+    
+    
+    var container = makeDiv('listContainer');
+    var img = makeDiv('listImg', '<img class="listImg" src="'+poi['image_url']+'" />');
+    var name = makeDiv('listName', '<a href="#" class="listLink" id="'+poi['order']+'">'+poi['name'] + '</a><br><span class="listHipness label '+hipnessLabel+'">Hipness:'+Math.floor(poi['hipness'])+'</span>     <span class="listRating label '+ratingLabel+'">Rating:'+poi['rating']+'</span>');
+    var order = makeDiv('listOrder', poi['order']);
+    //var hipness = makeDiv('listHipness', poi['hipness']);
+    //var rating = makeDiv('listRating', poi['rating']);
+    
+    
+    container.append(order);
+    container.append(img);
+    container.append(name);
+    //container.append(hipness);
+    //container.append(rating);
+    
+    $('#businessList').append(container);
+    
+    bindListItem();
+} // end addListItem
+
+
+// helper function to display the POI markers when pois variable is populated
+function renderPoiMarkers(){
+
+    if(markers != null){
+        markers.destroy();
+    }
+    markers = new OpenLayers.Layer.Markers( "Markers" );
+    map.addLayer(markers);
+    
+    // Custom marker
+    var size = new OpenLayers.Size(21,25);
+    var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+    var icon = new OpenLayers.Icon('http://localhost:1234/img/marker.png', size, offset);
+
+    for (var x = 0; x < pois.length; x++) {
+        // add marker
+        var poi = pois[x];
+        console.log('adding marker at '+poi.loc[0]+', '+poi.loc[1]);
+        var lonLat = new OpenLayers.LonLat( poi.loc[1] , poi.loc[0] ).transform(
+            new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+            map.getProjectionObject() // to Spherical Mercator Projection
+        );
+        var marker = new OpenLayers.Marker(lonLat);
+        marker.pois = poi;
+        var localIndex = x;
+        marker.events.register('mousedown', marker, markerClick.bind(this,x));
+        markers.addMarker(marker, icon.clone());
+    }
+}
+
+// renders the sidebar list based on what is in the pois variable
+function renderPoiList(){
+
+    $('#configArea').html("");
+    $('#configArea').html(ich.listTemplate({}));
+    // don't show the loader anymore
+    $('#configAreaLoading').css('display','none');
+    var query = $('#search').val();
+    for (var x = 0; x < pois.length; x++) {
+        // add entry in sidebox
+        var poi = pois[x];
+        if(x == 0){ // show photo of first hit, and the query in the business title
+            $('#businessName').html("<span>"+pois.length+" hippest results for '"+query+"'</a></span>");
+            $('#businessImage').html("<img src='"+poi['image_url']+"' />");
+        }
+        addListItem(x, poi);
+    }
+
+}
+
 // Search for the places and display them when searchbox is used
 function search(e){
     var code = e.keyCode || e.which
-    $('#configAreaContainer').css('opacity','.5');
+    
     if(code == 13){ // enter was pressed
+    
+        // load the listTemplate
+        $('#configArea').html("");
+        $('#configArea').html(ich.listTemplate({}));
+        // display the loader
+        $('#configAreaLoading').css('display','block');
+        $('#configAreaContainer').css('opacity','.5');
+    
         var query = $(this).val();
         // query database
         $.ajax({
@@ -541,36 +741,21 @@ function search(e){
         cache: true,
         success: function(res){
             try{
-                // save into global (I know this is bad.)
+                // save into global (I know this is bad, but this is just a small app, so it's okay :p.)
                 pois = JSON.parse(res);
                 // add each poi into the markers layer
-                console.log('/mostlinked returned');
+                
+                // sort pois by hipness
+                pois = pois.sort(function(a, b) { 
+                    return b.hipness - a.hipness;
+                })
+                
+                console.log('/search returned');
                 console.log(pois);
-                if(markers != null){
-                    markers.destroy();
-                }
-                markers = new OpenLayers.Layer.Markers( "Markers" );
-                map.addLayer(markers);
                 
-                // Custom marker
-                var size = new OpenLayers.Size(21,25);
-                var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-                var icon = new OpenLayers.Icon('http://localhost:1234/img/marker.png', size, offset);
+                renderPoiMarkers();
                 
-                
-                for (var x = 0; x < pois.length; x++) {
-                    var poi = pois[x];
-                    console.log('adding market at '+poi.loc[0]+', '+poi.loc[1]);
-                    var lonLat = new OpenLayers.LonLat( poi.loc[1] , poi.loc[0] ).transform(
-                        new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-                        map.getProjectionObject() // to Spherical Mercator Projection
-                    );
-                    var marker = new OpenLayers.Marker(lonLat);
-                    marker.pois = poi;
-                    var localIndex = x;
-                    marker.events.register('mousedown', marker, markerClick.bind(this,x));
-                    markers.addMarker(marker, icon.clone());
-                }
+                renderPoiList();
                 
                 $('#configAreaContainer').css('opacity','.9');
                 $('#loadingModal').modal('hide');
@@ -578,6 +763,7 @@ function search(e){
             
             } catch(e){
                 console.log(e.message);
+                console.log(e);
             }
         } // END success
         }); // END ajax
@@ -588,7 +774,14 @@ function search(e){
 
 // Make all the necessary calls when a marker is clicked
 function markerClick(x){
-    console.log('markerClick called with ');
+    console.log('markerClick called with '+x);
+    
+    // TODO: add back button UI
+    
+    // load the details template
+    $('#configArea').html("");
+    $('#configArea').html(ich.detailsTemplate());
+    
     console.log(pois[x]);
     var poi = pois[x];
     var id = poi['id']
@@ -606,6 +799,14 @@ function markerClick(x){
         cache: true,
         success: function(res){
             try{
+            
+                // bind the back button - if we do this any earlier, then if we hit back before ajax completes, bad things happen
+                $('#backToListBtn').click(function(){
+                    renderPoiList();
+                });
+                
+                
+                
                 details = JSON.parse(res);
                 // add each poi into the markers layer
                 console.log('/details returned');
@@ -624,11 +825,7 @@ function markerClick(x){
                 }
                 clearBox();
                 
-                function makeDiv(name){
-                    var div = $(document.createElement('div'));
-                    div.addClass(name);
-                    return div;
-                }
+                
                 
                 function addTweet(tweet, isLinked){
                     // construct the page
